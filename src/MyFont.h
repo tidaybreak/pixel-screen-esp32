@@ -1,30 +1,5 @@
 #include <pgmspace.h>
-#define TFT_BLACK       0x0      /*   0,   0,   0 */
-#define TFT_NAVY        0x000F      /*   0,   0, 128 */
-#define TFT_DARKGREEN   0x03E0      /*   0, 128,   0 */
-#define TFT_DARKCYAN    0x03EF      /*   0, 128, 128 */
-#define TFT_MAROON      0x7800      /* 128,   0,   0 */
-#define TFT_PURPLE      0x780F      /* 128,   0, 128 */
-#define TFT_OLIVE       0x7BE0      /* 128, 128,   0 */
-#define TFT_LIGHTGREY   0xD69A      /* 211, 211, 211 */
-#define TFT_DARKGREY    0x7BEF      /* 128, 128, 128 */
-#define TFT_BLUE        0x001F      /*   0,   0, 255 */
-#define TFT_GREEN       0x07E0      /*   0, 255,   0 */
-#define TFT_CYAN        0x07FF      /*   0, 255, 255 */
-#define TFT_RED         0xF800      /* 255,   0,   0 */
-#define TFT_MAGENTA     0xF81F      /* 255,   0, 255 */
-#define TFT_YELLOW      0xFFE0      /* 255, 255,   0 */
-#define TFT_WHITE       0xFFFF      /* 255, 255, 255 */
-#define TFT_ORANGE      0xFDA0      /* 255, 180,   0 */
-#define TFT_GREENYELLOW 0xB7E0      /* 180, 255,   0 */
-#define TFT_PINK        0xFE19      /* 255, 192, 203 */ //Lighter pink, was 0xFC9F      
-#define TFT_BROWN       0x9A60      /* 150,  75,   0 */
-#define TFT_GOLD        0xFEA0      /* 255, 215,   0 */
-#define TFT_SILVER      0xC618      /* 192, 192, 192 */
-#define TFT_SKYBLUE     0x867D      /* 135, 206, 235 */
-#define TFT_VIOLET      0x915C      /* 180,  46, 226 */
-#define PANEL_RES_X 64      // Number of pixels wide of each INDIVIDUAL panel module. 
-#define PANEL_RES_Y 64     // Number of pixels tall of each INDIVIDUAL panel module.
+
  
 PROGMEM const unsigned  char sz_0[] ={0x00,0x00,0x00,0x00,0x00,0x00,0x1F,0x80,0x3D,0xC0,0x38,0xE0,0x78,0xE0,0x70,0xF0,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x70,0x78,0xE0,0x38,0xE0,0x3D,0xE0,0x1F,0xC0,0x0F,0x80,0x00,0x00,0x00,0x00,0x00,0x00};/*"0",0*/
 PROGMEM const unsigned  char sz_1[] ={0x00,0x00,0x00,0x00,0x00,0x00,0x03,0x00,0x07,0x00,0x3F,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00};/*"1",1*/
@@ -131,8 +106,6 @@ PROGMEM const unsigned char smsj_jian[]={0x0,0x0,0x7,0x0,0x0};//-
 
 PROGMEM const unsigned char wd[]= {0x0,0x0,0x0,0x0,0x4,0x3,0x2,0x3};//℃
 PROGMEM const unsigned char sd[]= {0x0,0x0,0x0,0x0,0x4,0x7,0x5,0x5};//h
-PROGMEM const unsigned char wifi[]= 
-{0x00,0x00,0x0F,0x00,0x30,0xC0,0x40,0x20,0x0F,0x00,0x30,0xC0,0x06,0x00,0x09,0x00,0x00,0x00,0x06,0x00,0x00,0x00,0x00,0x00};/*"C:\Users\dudle\Pictures\wifi.bmp",0*/
 PROGMEM const unsigned char laba[]= 
 
 {0x00,0x00,0x08,0x40,0x18,0x20,0xF8,0x90,0xFA,0x50,0xF9,0x50,0xF9,0x50,0xFA,0x50,0xF8,0x90,0x18,0x20,0x08,0x40,0x00,0x00};/*"C:\Users\dudle\Pictures\laba.bmp",0*/
@@ -1358,64 +1331,3 @@ PROGMEM const uint16_t tianqi999 [] = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0
 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};//src/color-icon/999.png
 //摄氏度。
 
-
-struct  FNT_SJ24                 // 汉字字模数据结构
-{
-  int  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
-  const unsigned char* hz24_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
-  char *hz_width;
-};
-PROGMEM const FNT_SJ24 shuzi24[] 
-{
-  {1, sz_1,"12"}, {2, sz_2,"12"}, {3, sz_3,"12"}, {4, sz_4,"12"}, {5, sz_5,"12"}, {6, sz_6,"12"}, {7, sz_7,"12"}, {8, sz_8,"12"}, {9, sz_9,"12"}, {0, sz_0,"24"}
-};
-struct  FNT_SZ30                 // 汉字字模数据结构
-{
-  int  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
-  const unsigned char* sz30_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
-  char *hz_width;
-};
-PROGMEM const FNT_SZ30 shuzi30[] 
-{
-  {1, sz30_1,"30"}, {2, sz30_2,"30"}, {3, sz30_3,"30"}, {4, sz30_4,"30"}, {5, sz30_5,"30"}, {6, sz30_6,"30"}, {7, sz30_7,"30"}, {8, sz30_8,"30"}, {9, sz30_9,"30"}, {0, sz30_0,"30"}
-};
-struct  FNT_SJ14                 // 汉字字模数据结构
-{
-  int  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
-  const unsigned char* hz14_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
-  char *hz_width;
-};
-PROGMEM const FNT_SJ14 shuzi14[] 
-{
-  {1, shuzi_1,"7"}, {2, shuzi_2,"7"}, {3, shuzi_3,"7"}, {4, shuzi_4,"7"}, {5, shuzi_5,"7"}, {6, shuzi_6,"7"}, {7, shuzi_7,"7"}, {8, shuzi_8,"7"}, {9, shuzi_9,"7"}, {0, shuzi_0,"7"}
-};
-struct  FNT_TQ20                 // 天气
-{
-  int  Index;               // 天气索引
-  const  uint16_t * tq20_Id; // 存放每个点的颜色
-  char *hz_width;
-};
-PROGMEM const FNT_TQ20 tq20[] //61
-{
- { 100,tianqi100,"20"},{ 101,tianqi101,"20"},{ 102,tianqi102,"20"},{ 103,tianqi103,"20"},{ 104,tianqi104,"20"},{ 150,tianqi150,"20"},{ 153,tianqi153,"20"},{ 154,tianqi154,"20"},{ 300,tianqi300,"20"},{ 301,tianqi301,"20"},{ 302,tianqi302,"20"},{ 303,tianqi303,"20"},{ 304,tianqi304,"20"},{ 305,tianqi305,"20"},{ 306,tianqi306,"20"},{ 307,tianqi307,"20"},{ 308,tianqi308,"20"},{ 309,tianqi309,"20"},{ 310,tianqi310,"20"},{ 311,tianqi311,"20"},{ 312,tianqi312,"20"},{ 313,tianqi313,"20"},{ 314,tianqi314,"20"},{ 315,tianqi315,"20"},{ 316,tianqi316,"20"},{ 317,tianqi317,"20"},{ 318,tianqi318,"20"},{ 350,tianqi350,"20"},{ 351,tianqi351,"20"},{ 399,tianqi399,"20"},{ 400,tianqi400,"20"},{ 401,tianqi401,"20"},{ 402,tianqi402,"20"},{ 403,tianqi403,"20"},{ 404,tianqi404,"20"},{ 405,tianqi405,"20"},{ 406,tianqi406,"20"},{ 407,tianqi407,"20"},{ 408,tianqi408,"20"},{ 409,tianqi409,"20"},{ 410,tianqi410,"20"},{ 456,tianqi456,"20"},{ 457,tianqi457,"20"},{ 499,tianqi499,"20"},{ 500,tianqi500,"20"},{ 501,tianqi501,"20"},{ 502,tianqi502,"20"},{ 503,tianqi503,"20"},{ 504,tianqi504,"20"},{ 507,tianqi507,"20"},{ 508,tianqi508,"20"},{ 509,tianqi509,"20"},{ 510,tianqi510,"20"},{ 511,tianqi511,"20"},{ 512,tianqi512,"20"},{ 513,tianqi513,"20"},{ 514,tianqi514,"20"},{ 515,tianqi515,"20"},{ 900,tianqi900,"20"},{ 901,tianqi901,"20"},{ 999,tianqi999,"20"}
-};
-struct  FNT_SMSZ                 // 汉字字模数据结构
-{
-  int  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
-  const unsigned char* smsz_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
-  char *hz_width;
-};
-PROGMEM const FNT_SMSZ smsz[] 
-{
-  {1, smsj_1,"3"}, {2, smsj_2,"3"}, {3, smsj_3,"3"}, {4, smsj_4,"3"}, {5, smsj_5,"3"}, {6, smsj_6,"3"}, {7, smsj_7,"3"}, {8, smsj_8,"3"}, {9, smsj_9,"3"}, {0, smsj_0,"3"}
-};
-struct  FNT_SMCHAR                 // 汉字字模数据结构
-{
-  char  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
-  const unsigned char* smchar_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
-  char *hz_width;
-};
-PROGMEM const FNT_SMCHAR smchar[] 
-{
-  {'-', smsj_jian,"3"},{'1', smsj_1,"3"}, {'2', smsj_2,"3"}, {'3', smsj_3,"3"}, {'4', smsj_4,"3"}, {'5', smsj_5,"3"}, {'6', smsj_6,"3"}, {'7', smsj_7,"3"}, {'8', smsj_8,"3"}, {'9', smsj_9,"3"}, {'0', smsj_0,"3"}
-};
