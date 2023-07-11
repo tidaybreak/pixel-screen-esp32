@@ -132,31 +132,38 @@ struct WEATHER {
 };
 
 struct NIGHTCOLOR {
-  uint16_t color = 0xf0b0;  // 时间
-  uint16_t color2 = 0x780F; // 日期
-  uint16_t color3 = 0xf000; // 农历
-  uint16_t color4 = 0xfff0; // 温度
-  uint16_t color5 = 0xFDA0;
-  boolean isnight = true;
+    uint16_t color = 0xf0b0;  // 时间
+    uint16_t color2 = 0x780F; // 日期
+    uint16_t color3 = 0xf000; // 农历
+    uint16_t color4 = 0xfff0; // 温度
+    uint16_t color5 = 0xFDA0;
+    boolean isnight = true;
 
-  void nightMode() {
-    color = 0x8800; //时间
-    color2 = 0x8800; //日期
-    color3 = 0x8800;//农历
-    color4 = 0x8800;//温度
-    color5 = 0x8800;
-    isnight = true;
-  }
+    void nightMode() {
+      color = 0x8800; //时间
+      color2 = 0x8800; //日期
+      color3 = 0x8800;//农历
+      color4 = 0x8800;//温度
+      color5 = 0x8800;
+      isnight = true;
+    }
 
-  void set_isnight(boolean val) {
-    isnight = val;
-  }
+    void set_isnight(boolean val) {
+      isnight = val;
+    }
 };
 
-// void LOG_DEBUG(String &val) {
-//     DATATIME t;
-//     Serial.println(t.GetTimeStr() + String(" ") + String(val));
-// }
+union para_value
+{ // 联合体，保存int
+  int val;
+  byte val_b[2];
+};
 
+
+#define LOG_DEBUG(val) \
+    do { \
+        DATATIME t; \
+        Serial.println(t.GetTimeStr() + String(" ") + String(val)); \
+    } while (0)
 
 #endif

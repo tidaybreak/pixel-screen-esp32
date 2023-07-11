@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-const unsigned char wqy_zenhei[6763*2][12] PROGMEM = 
+const unsigned char wqy_zenhei24[6763*2][12] PROGMEM = 
 {
 
 {0x00,0x00,0xEE,0xE0,0xAA,0x40,0xAB,0xC0,0xAD,0x40,0xAD,0x40},
@@ -20293,7 +20293,7 @@ const unsigned char wqy_zenhei[6763*2][12] PROGMEM =
 {0xAA,0x20,0xFB,0xE0,0x02,0x20,0xFB,0xE0,0x50,0x00,0x97,0xE0},/*"齄",6762*/
 
 };
-const uint32_t utf_8_to_gbk[20902] PROGMEM = 
+const uint32_t utf_8_to_gbk24[20902] PROGMEM = 
 //const uint32_t utf_8_to_gbk[6762] PROGMEM = 
 {
 0xd2bb,0xb6a1,0x8140,0xc6df,0x8141,0x8142,0x8143,0xcdf2,0xd5c9,0xc8fd,0xc9cf,0xcfc2,0xd8a2,0xb2bb,0xd3eb,0x8144,
@@ -21607,7 +21607,7 @@ const uint32_t utf_8_to_gbk[20902] PROGMEM =
 
 
 
-int getfont(const unsigned char* pszBufIn, int nBufInLen, unsigned char* out)
+int getfont24(const unsigned char* pszBufIn, int nBufInLen, unsigned char* out)
 {
   int i = 0;
   int j = 0, nLen;
@@ -21615,6 +21615,8 @@ int getfont(const unsigned char* pszBufIn, int nBufInLen, unsigned char* out)
   uint32_t gbk;
   for (; i < nBufInLen; i++, j++)
   {
+    LOG_DEBUG("getfont:" + String(pszBufIn[i]));
+
     if ((pszBufIn[i] & 0x80) == 0x00)  
     {
       nLen = 1;
@@ -21628,8 +21630,8 @@ int getfont(const unsigned char* pszBufIn, int nBufInLen, unsigned char* out)
     {
       if (i + 2 >= nBufInLen) return -1;
       unicode = (((int)(pszBufIn[i] & 0x0F)) << 12) | (((int)(pszBufIn[i + 1] & 0x3F)) << 6) | (pszBufIn[i + 2]  & 0x3F);
-      gbk = utf_8_to_gbk[unicode - 0x4e00];
-      memcpy(out, wqy_zenhei[(((gbk / 256) - 0xb0) * 94 + (gbk % 256) - 0xa1) * 2] , 24);
+      gbk = utf_8_to_gbk24[unicode - 0x4e00];
+      memcpy(out, wqy_zenhei24[(((gbk / 256) - 0xb0) * 94 + (gbk % 256) - 0xa1) * 2] , 24);
       j++;
       i += 2;
     }

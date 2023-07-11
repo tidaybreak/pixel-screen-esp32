@@ -11,6 +11,7 @@ IPAddress apIP(192, 168, 4, 1);
 const char *AP_SSID = "DACLOCK"; // 设置AP热点名称
 String wifi_ssid = "";
 String wifi_pass = "";
+bool first_conn = true;
 
 // 定义成功页面HTML源代码
 #define SUCCESS_HTML "<html><body><font size=\"10\">successd,wifi connecting...<br />Please close this page manually.</font></body></html>"
@@ -84,7 +85,6 @@ void initSoftAP()
     Serial.println("ESP-32S SoftAP is right.");
     Serial.print("Soft-AP IP address = ");
     Serial.println(WiFi.softAPIP());
-    drawText(WiFi.softAPIP().toString().c_str(), 0, 20);
     Serial.println(String("MAC address = ") + WiFi.softAPmacAddress().c_str());
   }
   else
@@ -203,38 +203,72 @@ bool scanWiFi()
   }
   else
   {
-    Serial.print(n);
-    Serial.println(" networks found");
-    for (int i = 0; i < n; ++i)
-    {
-      // Print SSID and RSSI for each network found
-      Serial.print(i + 1);
-      Serial.print(": ");
-      Serial.print(WiFi.SSID(i));
-      Serial.print(" (");
-      Serial.print(WiFi.RSSI(i));
-      Serial.print(")");
-      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
-      scanNetworksID += "<P>" + WiFi.SSID(i) + "</P>";
-      delay(10);
-    }
+    // Serial.print(n);
+    // Serial.println(" networks found");
+    // for (int i = 0; i < n; ++i)
+    // {
+    //   // Print SSID and RSSI for each network found
+    //   Serial.print(i + 1);
+    //   Serial.print(": ");
+    //   Serial.print(WiFi.SSID(i));
+    //   Serial.print(" (");
+    //   Serial.print(WiFi.RSSI(i));
+    //   Serial.print(")");
+    //   Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
+    //   scanNetworksID += "<P>" + WiFi.SSID(i) + "</P>";
+    //   delay(10);
+    // }
     return true;
   }
 }
 
 // 用于配置WiFi
-void wifiConfig()
+void start_ap_mode()
 {
   initSoftAP();
   initWebServer();
   scanWiFi();
 }
 
+int wifi_check() {
+  if (WiFi.getMode() == WIFI_MODE_APSTA) {
+    handleWiFiRequest();
+    Serial.print(".");
+    // 在配网模式中
+    return 1;
+  }
 
+  if (WiFi.status() == WL_CONNECTED) {
+    // 已经连接成功
+      return 2;
+  } else {
+      text("Try to connect WIFI!");
+      if (connectToWiFi(15)) {
+        first_conn = false;
+        server_client.stop();
 
-void connectToWiFi(int timeOut_s)
+        Serial.println("wifi conn success!");
+        text(WiFi.localIP().toString().c_str(), true);
+
+        // 连网接成功
+        return 3;
+      } else if (first_conn) {
+        // 连接不成功   启动后就连接不成功才启动AP模式，运行中短线要不断尝试连接
+        Serial.println("WIFI autoconnect fail, start AP for webconfig now...");
+        text(String("AP mode:") + WiFi.softAPIP().toString().c_str(), true);
+
+        // 转到网页端手动配置wifi
+        start_ap_mode(); 
+      }
+  }
+
+  // 没连接
+  return 0;
+}
+
+bool connectToWiFi(int timeOut_s)
 {
-  Serial.println("进入connectToWiFi()函数 ssid:" + wifi_ssid);
+  //Serial.println("进入connectToWiFi()函数 ssid:" + wifi_ssid);
   // 设置为STA模式并连接WIFI
   WiFi.mode(WIFI_STA);
   WiFi.setAutoConnect(true); // 设置自动连接
@@ -256,22 +290,21 @@ void connectToWiFi(int timeOut_s)
   int Connect_time = 0; // 用于连接计时，如果长时间连接不成功，复位设备
   while (WiFi.status() != WL_CONNECTED)
   { // 等待WIFI连接成功
-    Serial.print(".");
+    Serial.print(">");
     delay(500);
     Connect_time++;
     if (Connect_time > 4 * timeOut_s)
     { // 长时间连接不上，重新进入配网页面
-      Serial.println("");
-      Serial.println("WIFI autoconnect fail, start AP for webconfig now...");
-      wifiConfig(); // 转到网页端手动配置wifi
-      return;       // 跳出 防止无限初始化
+      return false;       // 跳出 防止无限初始化
     }
   }
   Serial.println("");
+  //Serial.println(" status:" + String(WiFi.status()));
 
   if (WiFi.status() == WL_CONNECTED)
   {
-    Serial.println("wifi conn success!");
-    server_client.stop();
+    //Serial.println(" succ status:" + String(WiFi.status()));
+    return true;
   }
+  return false;
 }

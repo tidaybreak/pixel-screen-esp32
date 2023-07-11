@@ -3,6 +3,8 @@ Documents\PlatformIO\Projects\230708-162713-esp32dev\.pio\libdeps\esp32dev\ESP32
     dev->sample_rate_conf.rx_bck_div_num = 6;
     dev->sample_rate_conf.tx_bck_div_num = 6;
 
+汉子x=16 y=12
+
 
 # QQ交流群：746349932
 # 3.0版本更新一下内容
@@ -12,7 +14,7 @@ Documents\PlatformIO\Projects\230708-162713-esp32dev\.pio\libdeps\esp32dev\ESP32
 ### 4、优化天气等刷新逻辑。
 # 2.0版本更新以下内容
 ### 1、加入字库，支持常见文字显示，节日显示更完整。
-### 2、加入注册服务功能，可在线配置纪念日，支持农历、阳历。
+### 2、加入注册服务功能，可在线配置 纪念日，支持农历、阳历。
 ### 3、合并单屏、双屏版本代码，降低维护难度。
 ### 4、由于内置了2万多汉字区位码，空间占用较大，我编译的时候是99%
 ### 5、注册时钟时，昵称会成为网站的用户名，密码与用户名相同，修改密码功能暂未开发。

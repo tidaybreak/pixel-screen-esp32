@@ -165,7 +165,6 @@ void getNongli(DATACLOCK *cinfo, DATATIME &t)
   {
     payload = http.getString();
     Serial.println(payload);
-    //  drawText(payload,0,20);
   }
   else
   {

@@ -348,6 +348,7 @@ const char *showWeek(NIGHTCOLOR *ncolor, int v_week)
     yy3 = -14;
     return "日";
   }
+  return "showWeek";
 }
 
 
@@ -528,7 +529,7 @@ void showTime(DATATIME &t, CONF &conf, DATACLOCK &cinfo, WEATHER &winfo, NIGHTCO
   drawColorBit(22, 17 + yy3, tianqiwd, 5, 10, isnight);
   drawChars(28, 22 + yy3, cinfo.wea_temp1, ncolor.color4, isnight);
 
-  Serial.println("节日长度：" + String(cinfo.jieri.length() + String(" temp:") + String(cinfo.wea_temp1)));
+  //LOG_DEBUG("节日长度：" + String(cinfo.jieri.length() + String(" temp:") + String(cinfo.wea_temp1)));
   //Serial.println("temp:" + String(cinfo.wea_temp1));
   // 显示摄氏度
   if (atoi(cinfo.wea_temp1) > -10)

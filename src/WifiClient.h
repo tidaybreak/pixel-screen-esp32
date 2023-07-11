@@ -3,7 +3,9 @@
 
 #include<Arduino.h>
 
-void connectToWiFi(int timeOut_s);
+int wifi_check();
+
+bool connectToWiFi(int timeOut_s);
 
 void handleWiFiRequest();
 

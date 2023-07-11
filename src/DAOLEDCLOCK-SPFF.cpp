@@ -1,7 +1,5 @@
-#include <TimeLib.h>
-#include "time.h"
-
-#include <ArduinoJson.h>
+//#include <TimeLib.h>
+//#include "time.h"
 #include <SPI.h>
 #include "SPIFFS.h"
 #include <FS.h>
@@ -13,39 +11,28 @@
 #include "api.h"
 #include "Server.h"
 #include "WiFiClient.h"
-#include <ESP32Ping.h>
+#include <WiFi.h>
+//#include <ESP32Ping.h>
+//#include <ArduinoJson.h>
 
-
-
-int pinDHT11 = 21; // IO2
-SimpleDHT11 dht11(pinDHT11);
-
-
-boolean isnight = false;
 
 // bdd
 // const uint16_t* bddgif[] = {bdd1, bdd2, bdd3, bdd4, bdd5, bdd6, bdd7, bdd8, bdd9, bdd10, bdd11, bdd12, bdd13, bdd14,bdd15};
 int PANEL_CHAIN = 2; // Total number of panels chained one to another
-
+int pinDHT11 = 21; // IO2
+SimpleDHT11 dht11(pinDHT11);
+boolean isnight = false;
 String macAddr = WiFi.macAddress();
 String clockname = "";
+int netpage_wait = 0;
 
-DATATIME timenow;
 CONF conf;
+DATATIME timenow;
 DATACLOCK clockinfo;
 WEATHER weatherinfo;
 NIGHTCOLOR nightcolor;
-
-int len_city;
-int len_key;
-int netpage_wait = 0;
-
-union para_value
-{ // 联合体，保存int
-  int val;
-  byte val_b[2];
-};
 para_value e_int;
+
 //****载入配置
 void myconfig(CONF *conf)
 {
@@ -66,8 +53,8 @@ void myconfig(CONF *conf)
     conf->hum_mod = conf->hum_mod - 65536;
 
   // 读取城市8~len_city
-  len_city = EEPROM.read(4);
-  len_key = EEPROM.read(5);
+  int len_city = EEPROM.read(4);
+  int len_key = EEPROM.read(5);
   conf->city = "";
   conf->zx_key = "";
   for (int i = 0; i < len_city; i++)
@@ -116,8 +103,8 @@ void saveconfig(CONF &conf)
 
   // 保存城市和key 用8，9存储长度
   int i = 0;
-  len_city = conf.city.length();
-  len_key = conf.zx_key.length();
+  int len_city = conf.city.length();
+  int len_key = conf.zx_key.length();
   EEPROM.write(4, len_city);
   EEPROM.write(5, len_key);
   char citychar[conf.city.length()];
@@ -154,11 +141,6 @@ void dht11read(DATACLOCK *dclock)
   //Serial.print(err);
   dht11.read(&dclock->temperature, &dclock->humidity, NULL);
 }
-
-
-
-
-
 
 float sensor_Read()
 {
@@ -223,29 +205,27 @@ void setup()
   initOLED(PANEL_CHAIN, conf.light);
   int i = 0;
   // connect to WiFi
-  drawText("Try to connect WIFI!", 64, 0);
 
-  connectToWiFi(15); // apConfig();
 
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    updateServer();
-    clearOLED();
-    Serial.println(" CONNECTED");
-    drawText("CONNECTED!", 64, 0);
-    drawText(WiFi.localIP().toString().c_str(), 0, 20);
-    Serial.print(WiFi.localIP());
-    // init and get the time
-    setSyncProvider(getNtpTime);
-    timenow.GetTime();
+  // connectToWiFi(15); // apConfig();
 
-    getNongli(&clockinfo, timenow);
-    getWeather(&clockinfo, conf);
-    get3DayWeather(&weatherinfo, nightcolor, conf);
-    getBirth(&clockinfo, macAddr);
-    dht11read(&clockinfo);
-    showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
-  }
+
+  // if (WiFi.status() == WL_CONNECTED)
+  // {
+  //   updateServer();
+  //   clearOLED();
+  //   Serial.println(" CONNECTED");
+  //   Serial.print(WiFi.localIP());
+  //   // init and get the time
+
+
+  //   getNongli(&clockinfo, timenow);
+  //   getWeather(&clockinfo, conf);
+  //   get3DayWeather(&weatherinfo, nightcolor, conf);
+  //   getBirth(&clockinfo, macAddr);
+  //   dht11read(&clockinfo);
+  //   showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
+  // }
 
   SPIFFS.begin();
   while (!SPIFFS.begin(true))
@@ -254,6 +234,8 @@ void setup()
   }
 
   Serial.println("SPIFFS OK!");
+
+
 }
 
 void loop()
@@ -268,12 +250,25 @@ void loop()
   // //printf("ret: %d avg:%d \n", ret, avg_time_ms);
   // return ;
 
-  
-  handleWiFiRequest();
   handleApiRequest();
+
+  int wifi_status = wifi_check();
+  if(wifi_status == 0 or wifi_status == 1)
+  {
+    delay(350);
+    return;
+  } else if (wifi_status == 3) {
+    updateServer();
+    setSyncProvider(getNtpTime);
+    timenow.GetTime();
+  }
 
   // 读温度
   dht11read(&clockinfo);
+
+  delay(350);
+  return;
+
 
 
   // 刷新亮度
@@ -306,60 +301,53 @@ void loop()
   setBrightness(sensor_Read(), conf.light);
   cleanTab();
 
-  if (WiFi.status() == WL_CONNECTED || netpage_wait > 50)
+  // 任务 每天0点更新网络时间
+  // xTaskCreate(
+  //     refreshData,
+  //     "refreshData",
+  //     100000,
+  //     &timenow,
+  //     1,
+  //     NULL);
+  if (conf.isnightmode)
   {
-    // 任务 每天0点更新网络时间
-    xTaskCreate(
-        refreshData,
-        "refreshData",
-        100000,
-        &timenow,
-        1,
-        NULL);
-    if (conf.isnightmode)
+    if (hour() > 5 && hour() < 23)
     {
-      if (hour() > 5 && hour() < 23)
+      // 更新天气
+      if (timenow.minu % 10 == 0 && timenow.sec == 0 && timenow.minu != 0)
       {
-        // 更新天气
-        if (timenow.minu % 10 == 0 && timenow.sec == 0 && timenow.minu != 0)
-        {
-          xTaskCreate(refreshTQ, "refreshTQ", 10000, NULL, 1, NULL);
-        }
-        timenow.GetTime();
-        showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
-        showTigger(timenow, conf, clockinfo, true);
+        xTaskCreate(refreshTQ, "refreshTQ", 10000, NULL, 1, NULL);
       }
-      else
-      { // 夜间只显示时间
-        if (conf.twopannel)
-        {
-          set_screen_num(0);
-          onlyShowTime(timenow, conf, nightcolor, true);
-        }
-        else
-        {
-          set_screen_num(0);
-          onlyShowTime2(timenow, conf, nightcolor, true);
-        }
-        
-        nightcolor.set_isnight(true);
-
-      }
-    }
-    else
-    {
       timenow.GetTime();
       showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
       showTigger(timenow, conf, clockinfo, true);
     }
-    fillScreenTab(conf.twopannel, timenow.minu, true);
+    else
+    { // 夜间只显示时间
+      if (conf.twopannel)
+      {
+        set_screen_num(0);
+        onlyShowTime(timenow, conf, nightcolor, true);
+      }
+      else
+      {
+        set_screen_num(0);
+        onlyShowTime2(timenow, conf, nightcolor, true);
+      }
+      
+      nightcolor.set_isnight(true);
+
+    }
   }
   else
   {
-    drawBit(116, 52, iconwifi, 12, 12, TFT_DARKGREY, true);
-    Serial.println(" s" + WiFi.status());
-    connectToWiFi(15);
+    timenow.GetTime();
+    showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
+    showTigger(timenow, conf, clockinfo, true);
   }
+  //fillScreenTab(conf.twopannel, timenow.minu, true);
+  
+
   if (netpage_wait < 52)
   {
     netpage_wait++;

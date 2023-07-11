@@ -1,3 +1,6 @@
+#ifndef MYFONT_H_H      
+#define MYFONT_H_H
+
 #include <pgmspace.h>
 
  
@@ -1331,3 +1334,52 @@ PROGMEM const uint16_t tianqi999 [] = {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0
 0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};//src/color-icon/999.png
 //摄氏度。
 
+
+
+struct  FNT_SJ24                 // 汉字字模数据结构
+{
+  int  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
+  const unsigned char* hz24_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
+  char *hz_width;
+};
+
+struct  FNT_SZ30                 // 汉字字模数据结构
+{
+  int  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
+  const unsigned char* sz30_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
+  char *hz_width;
+};
+
+struct  FNT_SJ14                 // 汉字字模数据结构
+{
+  int  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
+  const unsigned char* hz14_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
+  char *hz_width;
+};
+
+struct  FNT_TQ20                 // 天气
+{
+  int  Index;               // 天气索引
+  const  uint16_t * tq20_Id; // 存放每个点的颜色
+  char *hz_width;
+};
+
+struct  FNT_SMSZ                 // 汉字字模数据结构
+{
+  int  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
+  const unsigned char* smsz_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
+  char *hz_width;
+};
+
+struct  FNT_SMCHAR                 // 汉字字模数据结构
+{
+  char  Index;               // 汉字内码索引,存放内码,如"中",在UTF-8编码下，每个汉字占3个字节，第四个是结束符0
+  const unsigned char* smchar_Id;                        // 点阵码数据       存放内码后对应的 点阵序列  每个字需要32个字节的点阵序列
+  char *hz_width;
+};
+
+
+
+
+
+#endif
