@@ -21615,7 +21615,6 @@ int getfont24(const unsigned char* pszBufIn, int nBufInLen, unsigned char* out)
   uint32_t gbk;
   for (; i < nBufInLen; i++, j++)
   {
-    LOG_DEBUG("getfont:" + String(pszBufIn[i]));
 
     if ((pszBufIn[i] & 0x80) == 0x00)  
     {

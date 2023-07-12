@@ -11,15 +11,6 @@
 #include "Arduino_GB2312_library_24.h"
 #include "Arduino_GB2312_library_32.h"
 
-#define SIZE_CN_X 16      // 汉字宽
-// #define SIZE_CN_Y 12      // 汉字高
-#define SIZE_CN_Y 16      // 汉字高
-//#define SIZE_CN_SPACE SIZE_CN_X - 4  // 间距 减是应为SIZE_CN_X实际最大只有11，剩余有5是空的
-#define SIZE_CN_SPACE SIZE_CN_X + 2  // 间距 减是应为SIZE_CN_X实际最大只有11，剩余有5是空的
-// #define SIZE_EN_X 8       // 字符宽
-// #define SIZE_EN_Y 8       // 字符高
-// #define SIZE_EN_SPACE 8  // 间距
-
 
 // MatrixPanel_I2S_DMA dma_display;
 MatrixPanel_I2S_DMA *dma_display = nullptr;
@@ -478,7 +469,7 @@ void fillScreenTab(int32_t x, int32_t y, int32_t x_max, int fsize)
     cn_y = 16;
   }
 
-  LOG_DEBUG("fillScreenTab:" + String(x) + " " + String(y) + " " + String(x_max));
+  //LOG_DEBUG("fillScreenTab:" + String(x) + " " + String(y) + " " + String(x_max));
   for (int i = x; i < x_max; i++)
   {
     for (int j = y; j < y + cn_y; j++)
@@ -488,20 +479,22 @@ void fillScreenTab(int32_t x, int32_t y, int32_t x_max, int fsize)
   }
 }
 
-int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize)
+int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize, int &width, int &height)
 {
-  int space = 0;
-  if (fsize == 1) {
-    space = 16 - 4;
-    fsize = 24;
-  } else {
-    space = 16 + 0;
+  int space = 16 - 4;
+  width = 16;
+  height = 12;
+  if (fsize != 1) {
+    space = 16;
+    height = 16;
     fsize = 32;
+  } else {
+    fsize = 24;
   }
 
   unsigned char buffs[fsize];
   // 建立缓存空间
-  if (fsize = 24) {
+  if (fsize == 24) {
     getfont24(names, sizeof(names), buffs);
   } else {
     getfont32(names, sizeof(names), buffs);
@@ -513,7 +506,7 @@ int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize)
   {
     if ((i) % 2 == 0)
     {
-      Serial.print(String(i)); 
+      //Serial.print(String(i)); 
     }
     
     for (int s = 7; s >= 0; s--)
@@ -531,7 +524,7 @@ int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize)
           {
             fillTab(15 - s + xx, y + yy, color);
           }
-          Serial.print("*");
+          //Serial.print("*");
         } else {
           Serial.println("warnning:" + String(s) + " " + " " + String(x) + " " + String(xx));
         }
@@ -546,7 +539,7 @@ int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize)
           {
             fillTab(15 - s + xx, y + yy, 0);
           }
-          Serial.print("."); 
+          //Serial.print("."); 
         } else {
           Serial.println("warnning:" + String(s) + " " + " " + String(x) + " " + String(xx));
         }
@@ -556,17 +549,17 @@ int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize)
     if ((i + 1) % 2 == 0)
     {
       y += 1;
-      Serial.println(""); 
+      //Serial.println(""); 
     }
   }
 
 
-  fillScreenTab(xx, yy, xx + space, fsize);
+  fillScreenTab(xx, yy, xx + width, fsize);
   return space;
 
 }
 
-int draw_ascii(String words, int x, int y, uint16_t color565, int fsize)
+int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &width, int &height)
 {
   dma_display->setCursor(x, y);
   // 设置背景色 覆盖已有内容
@@ -578,32 +571,44 @@ int draw_ascii(String words, int x, int y, uint16_t color565, int fsize)
   dma_display->print(words);
 
   // 1 is default 6x8, 2 is 12x16, 3 is 18x24, etc
-  int en_space = 6 + 0;
+  width = 6;
+  height = 8;
   if (fsize == 2) {
-      en_space = 12 + 0;
+      width = 12;
+      height = 16;
   } else if (fsize == 3) {
-      en_space = 18 + 0;
+      width = 18;
+      height = 24;
   } 
-  return en_space;
+  return width;
 }
 
 void text(const String &content, bool clear, int x, int y, const char *color, int fsize)
 {
   /*
-  core: "自由Try to connect WIFI!"\
-  "自由Tr" 显示 自由由
+
   */
+
   if (clear)
   {
     dma_display->clearScreen();
   }
+
+  int mx_width = dma_display->getCfg().mx_width * dma_display->getCfg().chain_length;
+  int mx_height = dma_display->getCfg().mx_height;
   if (x == -1)
   {
-    x = int(dma_display->getCfg().mx_width * dma_display->getCfg().chain_length / 2);
+    x = 0;//int(dma_display->getCfg().mx_width * dma_display->getCfg().chain_length / 2);
   }
   if (y == -1)
   {
-    y = int(dma_display->getCfg().mx_height / 2);
+    y = int(mx_height / 2) - 8;
+  }
+  if (x + 16 > mx_width) {
+    return;
+  }
+  if (y + 16 > mx_height) {
+    return;
   }
 
   fsize = fsize > 3 ? 3 : fsize;
@@ -616,34 +621,38 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
     color565 = color_to_color565(color);
   }
 
-  // if (hasChineseCharacter(content)) {
-  //   int x_max = drawHanziS(x, y, content.c_str(), color565, false);
-  //   fillScreenTab(x, y, x_max);
-  // } else {
-  //   draw_ascii (content, x, y, color565);
-  // }
-
-
-
+  int space = 0;
   int x_cursor = x;
   unsigned char b[3];
   const char *str = content.c_str();
   for (int i = 0; i < strlen(str);)
   {
-    int space = 0;
+    int width = 0, height = 0;
     unsigned char ch = static_cast<unsigned char>(str[i]);
     if (ch >= 0x80 && ch <= 0xFF) {
         // 如果字符的高位为1，则表示是中文字符
         b[0] = str[i];
         b[1] = str[i + 1];
         b[2] = str[i + 2];
-        space = draw_gb2312(x_cursor, y, b, color565, fsize);
+        space = draw_gb2312(x_cursor, y, b, color565, fsize, width, height);
         i += 3;
     } else {
-        space = draw_ascii(String(str[i]), x_cursor, y, color565, fsize);
+        space = draw_ascii(String(str[i]), x_cursor, y, color565, fsize, width, height);
         i++;
     }
-     x_cursor += space; // 减小字间距，字体实际宽12
+    //LOG_DEBUG(" x_cursor:" + String(x_cursor) + " "  + String(s_x) + " "  + String(s_y) + " "  + String(space));
+
+    // 减小字间距，字体实际宽12
+    x_cursor += space + 1 ; 
+
+    // 换行逻辑
+    if (x_cursor + width >= mx_width) {
+        x_cursor = x;
+        y = y + height;
+    }
+    if (y + height >= mx_height) {
+      break;
+    }
   }
 }
 
