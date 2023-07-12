@@ -160,6 +160,7 @@ union para_value
 };
 
 
+#define VAL(val) " " + String(val)
 #define LOG_DEBUG(val) \
     do { \
         DATATIME t; \

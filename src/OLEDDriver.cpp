@@ -49,9 +49,18 @@ uint16_t myRED = dma_display->color565(255, 0, 0);
 uint16_t myGREEN = dma_display->color565(0, 255, 0);
 uint16_t myBLUE = dma_display->color565(0, 0, 255);
 
+
 MatrixPanel_I2S_DMA *get_dma_display()
 {
   return dma_display;
+}
+
+int mx_width() {
+  return dma_display->getCfg().mx_width * dma_display->getCfg().chain_length;
+}
+
+int mx_height() {
+  return dma_display->getCfg().mx_height;
 }
 
 void setTextColor(uint16_t c)
@@ -462,17 +471,12 @@ uint16_t color_to_color565(const char *color) {
 }
 
 
-void fillScreenTab(int32_t x, int32_t y, int32_t x_max, int fsize)
+void fillScreenTab(int32_t x, int32_t y, int32_t width, int height)
 {
-  int cn_y = 12;
-  if (fsize > 1) {
-    cn_y = 16;
-  }
-
   //LOG_DEBUG("fillScreenTab:" + String(x) + " " + String(y) + " " + String(x_max));
-  for (int i = x; i < x_max; i++)
+  for (int i = x; i < width; i++)
   {
-    for (int j = y; j < y + cn_y; j++)
+    for (int j = y; j < height; j++)
     {
         dma_display->drawPixel(i + screen_num, j, ledtab[i][j]);
     }
@@ -481,16 +485,27 @@ void fillScreenTab(int32_t x, int32_t y, int32_t x_max, int fsize)
 
 int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize, int &width, int &height)
 {
-  int space = 16 - 4;
-  width = 16;
-  height = 12;
-  if (fsize != 1) {
-    space = 16;
+  int x_fill = 0; // x第二个8点数量
+  int space = 1; 
+  if (fsize == 1) {
+    space = 2;
+    width = 12;
+    height = 12;
+    fsize = 24;
+    x_fill = 4;
+  } else {
+    width = 16;
     height = 16;
     fsize = 32;
-  } else {
-    fsize = 24;
+    x_fill = 0;
   }
+
+   if (xx + width >= mx_width()) {
+    return space;
+  }
+  if (yy + height >= mx_height()) {
+    return space;
+  } 
 
   unsigned char buffs[fsize];
   // 建立缓存空间
@@ -502,74 +517,42 @@ int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize,
   int kj = 0;
   int x = 0;
   int y = 0;
-  for (int i = 0; i < fsize; i++)
+  for (int i = 0; i < fsize; i += 2)
   {
-    if ((i) % 2 == 0)
-    {
-      //Serial.print(String(i)); 
-    }
-    
-    for (int s = 7; s >= 0; s--)
-    {
-      //fillTab(7 - s + xx, y + yy, 0, false);
+    Serial.print(String(i) + ":"); 
+
+    for (int s = 7; s >= 0; s--) {
       if (buffs[i] & (0x01 << s))
       {
-        if (7 - s + xx >= 0)
-        {
-          if (i % 2 == 0)
-          {
-            fillTab(7 - s + xx, y + yy, color);
-          }
-          else
-          {
-            fillTab(15 - s + xx, y + yy, color);
-          }
-          //Serial.print("*");
-        } else {
-          Serial.println("warnning:" + String(s) + " " + " " + String(x) + " " + String(xx));
-        }
+        fillTab(7 - s + xx, y + yy, color);
+        Serial.print("*");
       } else {
-        if (7 - s + xx >= 0)
-        {
-          if (i % 2 == 0)
-          {
-            fillTab(7 - s + xx, y + yy, 0);
-          }
-          else
-          {
-            fillTab(15 - s + xx, y + yy, 0);
-          }
-          //Serial.print("."); 
-        } else {
-          Serial.println("warnning:" + String(s) + " " + " " + String(x) + " " + String(xx));
-        }
+        fillTab(7 - s + xx, y + yy, 0);
+        Serial.print("."); 
       }
     }
-
-    if ((i + 1) % 2 == 0)
-    {
-      y += 1;
-      //Serial.println(""); 
+    for (int s = 7; s >= x_fill; s--) {
+      if (buffs[i+1] & (0x01 << s))
+      {
+        fillTab(15 - s + xx, y + yy, color);
+        Serial.print("*");
+      } else {
+        fillTab(15 - s + xx, y + yy, 0);
+        Serial.print("."); 
+      }
     }
+    y += 1;
+    Serial.println(""); 
   }
 
-
-  fillScreenTab(xx, yy, xx + width, fsize);
+  fillScreenTab(xx, yy, xx + width, yy + height);
   return space;
 
 }
 
 int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &width, int &height)
 {
-  dma_display->setCursor(x, y);
-  // 设置背景色 覆盖已有内容
-  if (color565 == 0) {
-    color565 = dma_display->color565(255, 255, 0);
-  }
-  dma_display->setTextSize(fsize);
-  dma_display->setTextColor(color565, 0);
-  dma_display->print(words);
-
+  int space = 1; 
   // 1 is default 6x8, 2 is 12x16, 3 is 18x24, etc
   width = 6;
   height = 8;
@@ -579,8 +562,26 @@ int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &wi
   } else if (fsize == 3) {
       width = 18;
       height = 24;
+  }
+
+  if (x + width >= mx_width()) {
+    return space;
+  }
+  if (y + height >= mx_height()) {
+    return space;
   } 
-  return width;
+
+  dma_display->setCursor(x, y);
+  // 设置背景色 覆盖已有内容
+  if (color565 == 0) {
+    color565 = dma_display->color565(255, 255, 0);
+  }
+  dma_display->setTextSize(fsize);
+  dma_display->setTextColor(color565, 0);
+  dma_display->print(words);
+
+
+  return space;
 }
 
 void text(const String &content, bool clear, int x, int y, const char *color, int fsize)
@@ -594,21 +595,13 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
     dma_display->clearScreen();
   }
 
-  int mx_width = dma_display->getCfg().mx_width * dma_display->getCfg().chain_length;
-  int mx_height = dma_display->getCfg().mx_height;
   if (x == -1)
   {
     x = 0;//int(dma_display->getCfg().mx_width * dma_display->getCfg().chain_length / 2);
   }
   if (y == -1)
   {
-    y = int(mx_height / 2) - 8;
-  }
-  if (x + 16 > mx_width) {
-    return;
-  }
-  if (y + 16 > mx_height) {
-    return;
+    y = int(mx_height() / 2) - 8;
   }
 
   fsize = fsize > 3 ? 3 : fsize;
@@ -640,17 +633,24 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
         space = draw_ascii(String(str[i]), x_cursor, y, color565, fsize, width, height);
         i++;
     }
+
+    // 清空间距内容
+    if (i + 1 < strlen(str)) {
+      dma_display->fillRect(x_cursor + width, y, space, height, 0); // dma_display->color565(125, 125, 230)
+      LOG_DEBUG(VAL(x_cursor + width + 1) + VAL(x_cursor + width + space) + VAL(space) + VAL(height));
+    }
+
     //LOG_DEBUG(" x_cursor:" + String(x_cursor) + " "  + String(s_x) + " "  + String(s_y) + " "  + String(space));
 
     // 减小字间距，字体实际宽12
-    x_cursor += space + 1 ; 
+    x_cursor += width + space;
 
     // 换行逻辑
-    if (x_cursor + width >= mx_width) {
+    if (x_cursor + width >= mx_width()) {
         x_cursor = x;
         y = y + height;
     }
-    if (y + height >= mx_height) {
+    if (y + height >= mx_height()) {
       break;
     }
   }
