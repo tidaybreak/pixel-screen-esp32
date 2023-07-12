@@ -637,7 +637,7 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
     // 清空间距内容
     if (i + 1 < strlen(str)) {
       dma_display->fillRect(x_cursor + width, y, space, height, 0); // dma_display->color565(125, 125, 230)
-      LOG_DEBUG(VAL(x_cursor + width + 1) + VAL(x_cursor + width + space) + VAL(space) + VAL(height));
+      //LOG_DEBUG(VAL(x_cursor + width + 1) + VAL(x_cursor + width + space) + VAL(space) + VAL(height));
     }
 
     //LOG_DEBUG(" x_cursor:" + String(x_cursor) + " "  + String(s_x) + " "  + String(s_y) + " "  + String(space));

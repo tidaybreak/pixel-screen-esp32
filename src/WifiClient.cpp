@@ -249,6 +249,7 @@ int wifi_check() {
 
         Serial.println("wifi conn success!");
         text(WiFi.localIP().toString().c_str(), true);
+        //text("test");
 
         // 连网接成功
         return 3;
