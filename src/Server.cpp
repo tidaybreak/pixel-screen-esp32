@@ -109,8 +109,8 @@ void uploadFinish() {
   server.send(200, "text/html", serverIndex );
 }
 
-
 void handlereg()
+
 {
 //   HTTPClient http;
 //   // We now create a URI for the request

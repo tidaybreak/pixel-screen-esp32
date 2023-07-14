@@ -3,6 +3,7 @@
 
 #include<Arduino.h>
 
+class MatrixPanel_I2S_DMA;
 
 void setTextColor(uint16_t c);
 
@@ -25,11 +26,12 @@ void drawColorBit(int x, int y, const uint16_t *bitmap , int width, int height, 
 void drawColorBit2(int x, int y, const uint16_t *bitmap , int width, int height, boolean isnight);
 void showTQ(int c, int x, int y, boolean isnight);
 
+void initOLED(int panel_chain, int light);
+MatrixPanel_I2S_DMA *get_oled();
+void clearOLED();
 void text(const String &content, bool clear=false, int x=-1, int y=-1, const char *color=NULL, int fsize=1);
 int draw_ascii(String words, int x, int y, uint16_t color565=0, int fsize=1);
-void clearOLED();
-    
-void initOLED(int panel_chain, int light);
+
 void setBrightness(int dianya, int light);
 void displayNumber(int c, int x, int y, uint16_t color, boolean isnight);
 void disSmallNumber(int c, int x, int y, uint16_t color, boolean isnight);

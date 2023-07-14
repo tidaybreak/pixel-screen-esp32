@@ -3,6 +3,7 @@
 #include <SPI.h>
 #include "SPIFFS.h"
 #include <FS.h>
+#include <WiFi.h>
 #include <SimpleDHT.h>
 #include <EEPROM.h>
 #include "define.h"
@@ -11,9 +12,12 @@
 #include "api.h"
 #include "Server.h"
 #include "WiFiClient.h"
-#include <WiFi.h>
+//#include "ConfigPortal.h"
+
 //#include <ESP32Ping.h>
 //#include <ArduinoJson.h>
+
+#include "element/clock/tetris/tetris.h"
 
 
 // bdd
@@ -200,48 +204,26 @@ void setup()
 {
   Serial.begin(115200);
   get_system_info();
-
   myconfig(&conf);
   initOLED(PANEL_CHAIN, conf.light);
-  int i = 0;
-  // connect to WiFi
-
-
-  // connectToWiFi(15); // apConfig();
-
-
-  // if (WiFi.status() == WL_CONNECTED)
-  // {
-  //   updateServer();
-  //   clearOLED();
-  //   Serial.println(" CONNECTED");
-  //   Serial.print(WiFi.localIP());
-  //   // init and get the time
-
-
-  //   getNongli(&clockinfo, timenow);
-  //   getWeather(&clockinfo, conf);
-  //   get3DayWeather(&weatherinfo, nightcolor, conf);
-  //   getBirth(&clockinfo, macAddr);
-  //   dht11read(&clockinfo);
-  //   showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
-  // }
 
   SPIFFS.begin();
   while (!SPIFFS.begin(true))
   {
     Serial.print("****");
   }
+  //text("SPIFFS OK!");
 
-  Serial.println("SPIFFS OK!");
 
+  //setup_ConfigPortal();
 
 }
 
 void loop()
 {
-
-  // delay(1000);
+  //loop_ConfigPortal();
+  // delay(350);
+  // return;
 
   // const IPAddress remote_ip(192, 168, 3, 1);
   // int ret = Ping.ping(remote_ip, 1);
@@ -261,13 +243,17 @@ void loop()
     updateServer();
     setSyncProvider(getNtpTime);
     timenow.GetTime();
+    element_clock_tetris_setup();
   }
 
   // 读温度
   dht11read(&clockinfo);
 
-  delay(350);
-  return;
+  element_clock_tetris_loop();
+  // PxMatrix_demo_override_spi_pins_esp32_loop();
+
+  delay(100);
+  return; 
 
 
 

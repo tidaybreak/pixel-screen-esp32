@@ -8,10 +8,13 @@
 WebServer server_client(80);
 // AP模式IP
 IPAddress apIP(192, 168, 4, 1);
-const char *AP_SSID = "DACLOCK"; // 设置AP热点名称
+const char *AP_SSID = "Pixel"; // 设置AP热点名称
 String wifi_ssid = "";
 String wifi_pass = "";
 bool first_conn = true;
+
+#define TIME_ZONE_LEN 100
+char timeZone[TIME_ZONE_LEN] = MYTIMEZONE;
 
 // 定义成功页面HTML源代码
 #define SUCCESS_HTML "<html><body><font size=\"10\">successd,wifi connecting...<br />Please close this page manually.</font></body></html>"
@@ -243,7 +246,7 @@ int wifi_check() {
       return 2;
   } else {
       text("Try to connect WIFI!");
-      if (connectToWiFi(15)) {
+      if (connectToWiFi(10)) {
         first_conn = false;
         server_client.stop();
 
@@ -256,7 +259,7 @@ int wifi_check() {
       } else if (first_conn) {
         // 连接不成功   启动后就连接不成功才启动AP模式，运行中短线要不断尝试连接
         Serial.println("WIFI autoconnect fail, start AP for webconfig now...");
-        text(String("AP mode:") + WiFi.softAPIP().toString().c_str(), true);
+        text(String("Config:") + WiFi.softAPIP().toString().c_str(), true);
 
         // 转到网页端手动配置wifi
         start_ap_mode(); 
