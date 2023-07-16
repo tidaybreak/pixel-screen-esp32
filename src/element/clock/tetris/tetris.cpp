@@ -238,9 +238,9 @@ void setMatrixTime() {
     // Get time in format "01:15" or "22:15"(24 hour with leading 0)
     timeString = myTZ.dateTime("H:i");
     String hourString = myTZ.dateTime("H");
-    int h = atoi("01");
-    X_OFFSET = (h > 9 and h < 20) ? 11 : 15;
-    Serial.println(String(h) + " " + String(X_OFFSET));
+    int h = atoi(hourString.c_str());
+    X_OFFSET = (h > 9 and h < 20) ? 11 : 15; 
+    //Serial.println(String(h) + " " + String(X_OFFSET));
   }
   //Serial.println(timeString);
 
@@ -298,6 +298,11 @@ void element_clock_tetris_setup() {
 
   // Display Setup
   dma_display = get_oled();
+
+  if (dma_display == nullptr) {
+    return ;
+  }
+
   dma_display->fillScreen(myBLACK);
   tetris.display = dma_display; // Main clock
   tetris_sec.display = dma_display; // Main clock
@@ -343,6 +348,9 @@ void element_clock_tetris_setup() {
 }
 
 void element_clock_tetris_loop() {
+  if (dma_display == nullptr) {
+    return ;
+  }
   unsigned long now = millis();
   if (now > oneSecondLoopDue) {
     // We can call this often, but it will only

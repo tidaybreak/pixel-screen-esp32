@@ -603,6 +603,9 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
   /*
 
   */
+  if (dma_display == nullptr) {
+    return;
+  }
 
   if (clear)
   {
@@ -698,7 +701,7 @@ void initOLED(int panel_chain, int light)
   mxconfig.clkphase = false;
   mxconfig.driver = HUB75_I2S_CFG::FM6126A;
 
-  // Display Setup
+  // Display Setup 会影响jtag调试
   dma_display = new MatrixPanel_I2S_DMA(mxconfig);
   dma_display->begin();
   dma_display->setBrightness8(50); // 0-255

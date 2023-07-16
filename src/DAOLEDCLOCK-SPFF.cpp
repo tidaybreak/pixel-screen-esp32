@@ -1,6 +1,6 @@
 //#include <TimeLib.h>
 //#include "time.h"
-#include <SPI.h>
+//#include <SPI.h>
 #include "SPIFFS.h"
 #include <FS.h>
 #include <WiFi.h>

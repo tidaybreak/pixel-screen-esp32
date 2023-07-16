@@ -3,7 +3,6 @@ Documents\PlatformIO\Projects\230708-162713-esp32dev\.pio\libdeps\esp32dev\ESP32
     dev->sample_rate_conf.rx_bck_div_num = 6;
     dev->sample_rate_conf.tx_bck_div_num = 6;
 
-汉子x=16 y=12
 
 
 # QQ交流群：746349932
