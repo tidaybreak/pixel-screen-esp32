@@ -42,7 +42,7 @@
 // Can be installed from the library manager (Search for "ESP32 MATRIX DMA")
 // https://github.com/mrfaptastic/ESP32-HUB75-MatrixPanel-I2S-DMA
 
-#include <TetrisMatrixDraw.h>
+#include "element/clock/tetris/TetrisMatrixDraw.h"
 // This library draws out characters using a tetris block
 // amimation
 // Can be installed from the library manager
@@ -79,7 +79,7 @@ const int panelResX = 64;   // Number of pixels wide of each INDIVIDUAL panel mo
 const int panelResY = 64;   // Number of pixels tall of each INDIVIDUAL panel module.
 const int panel_chain = 2;  // Total number of panels chained one to another.
 
-const int X_OFFSET = 32;
+int X_OFFSET = 15;
 #define MYTIMEZONE "Asia/Shanghai"
 
 // -------------------------------------
@@ -87,7 +87,7 @@ const int X_OFFSET = 32;
 // -------------------------------------
 
 // Sets whether the clock should be 12 hour format or not.
-bool twelveHourFormat = true;
+bool twelveHourFormat = false;
 
 // If this is set to false, the number will only change if the value behind it changes
 // e.g. the digit representing the least significant minute will be replaced every minute,
@@ -97,20 +97,20 @@ bool forceRefresh = false;
 
 // -----------------------------
 
-static MatrixPanel_I2S_DMA *dma_display = nullptr;
+static MatrixPanel_I2S_DMA *dma_display = get_oled();
 
 portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 hw_timer_t * animationTimer = NULL;
 
 unsigned long animationDue = 0;
-unsigned long animationDelay = 30; // Smaller number == faster
+unsigned long animationDelay = 0; // Smaller number == faster
 
 static uint16_t myBLACK = dma_display->color565(0, 0, 0);
 
-TetrisMatrixDraw tetris(*dma_display); // Main clock
-TetrisMatrixDraw tetris_s(*dma_display); // Main clock second
-TetrisMatrixDraw tetris2(*dma_display); // The "M" of AM/PM
-TetrisMatrixDraw tetris3(*dma_display); // The "P" or "A" of AM/PM
+TetrisMatrixDraw tetris(dma_display); // Main clock
+TetrisMatrixDraw tetris_sec(dma_display); // Main clock second
+TetrisMatrixDraw tetris_m(dma_display); // The "M" of AM/PM
+TetrisMatrixDraw tetris_pa(dma_display); // The "P" or "A" of AM/PM
 
 Timezone myTZ;
 unsigned long oneSecondLoopDue = 0;
@@ -120,6 +120,7 @@ volatile bool finishedAnimating = false;
 bool displayIntro = true;
 
 String lastDisplayedTime = "";
+String lastDisplayedTimeSec = "";
 String lastDisplayedAmPm = "";
 
 const int y_offset = panelResY / 2;
@@ -129,8 +130,13 @@ void animationHandler()
 {
   // Not clearing the display and redrawing it when you
   // dont need to improves how the refresh rate appears
+ 
   if (!finishedAnimating) {
+    // 先清楚秒方块痕迹
+    while(!tetris_sec.drawNumbers(70 + X_OFFSET, 10 + y_offset)) {}
+
     dma_display->fillScreen(myBLACK);
+
     // if (displayIntro) {
     //   finishedAnimating = tetris.drawText(1 + X_OFFSET, 5 + y_offset);
     // } else {
@@ -138,26 +144,34 @@ void animationHandler()
         // Place holders for checking are any of the tetris objects
         // currently still animating.
         bool tetris1Done = false;
-        bool tetris2Done = false;
-        bool tetris3Done = false;
+        bool tetris_mDone = false;
+        bool tetris_paDone = false;
 
         tetris1Done = tetris.drawNumbers(-6 + X_OFFSET, 10 + y_offset, showColon);
-        tetris2Done = tetris2.drawText(56 + X_OFFSET, 9 + y_offset);
+        tetris_mDone = tetris_m.drawText(56 + X_OFFSET, 9 + y_offset);
 
         // Only draw the top letter once the bottom letter is finished.
-        if (tetris2Done) {
-          tetris3Done = tetris3.drawText(56 + X_OFFSET, -1 + y_offset);
+        if (tetris_mDone) {
+          tetris_paDone = tetris_pa.drawText(56 + X_OFFSET, -1 + y_offset);
         }
 
-        finishedAnimating = tetris1Done && tetris2Done && tetris3Done;
+        finishedAnimating = tetris1Done && tetris_mDone && tetris_paDone;
 
       } else {
         finishedAnimating = tetris.drawNumbers(2 + X_OFFSET, 10 + y_offset, showColon);
       }
-    //}
-    dma_display->flipDMABuffer();
-  }
 
+
+    uint16_t colour =  showColon ? tetris.tetrisWHITE : tetris.tetrisBLACK;
+    int y = 10 + y_offset - (TETRIS_Y_DROP_DEFAULT * tetris.scale);
+    int x = X_OFFSET + 16 * 2 + 2 + 2;
+    tetris_sec.drawColon(x, y, colour);
+
+    tetris_sec.drawNumbers(70 + X_OFFSET, 10 + y_offset);
+
+    dma_display->flipDMABuffer();
+
+  }
 }
 
 void drawIntro(int x = 0, int y = 0)
@@ -192,6 +206,83 @@ void drawConnecting(int x = 0, int y = 0)
   //dma_display->flipDMABuffer();
 }
 
+
+void setMatrixTime() {
+  String timeString = "";
+  String AmPmString = "";
+  if (twelveHourFormat) {
+    // Get the time in format "1:15" or 11:15 (12 hour, no leading 0)
+    // Check the EZTime Github page for info on
+    // time formatting
+    timeString = myTZ.dateTime("g:i:h");
+
+    //If the length is only 4, pad it with
+    // a space at the beginning
+    if (timeString.length() == 4) {
+      timeString = " " + timeString;
+    }
+
+    //Get if its "AM" or "PM"
+    AmPmString = myTZ.dateTime("A");
+    if (lastDisplayedAmPm != AmPmString) {
+      Serial.println(AmPmString);
+      lastDisplayedAmPm = AmPmString;
+      // Second character is always "M"
+      // so need to parse it out
+      tetris_m.setText("M", forceRefresh);
+
+      // Parse out first letter of String
+      tetris_pa.setText(AmPmString.substring(0, 1), forceRefresh);
+    }
+  } else {
+    // Get time in format "01:15" or "22:15"(24 hour with leading 0)
+    timeString = myTZ.dateTime("H:i");
+    String hourString = myTZ.dateTime("H");
+    int h = atoi("01");
+    X_OFFSET = (h > 9 and h < 20) ? 11 : 15;
+    Serial.println(String(h) + " " + String(X_OFFSET));
+  }
+  //Serial.println(timeString);
+
+  // Only update Time if its different
+  if (lastDisplayedTime != timeString) {
+    Serial.println(timeString);
+    lastDisplayedTime = timeString;
+    tetris.setTime(timeString, forceRefresh);
+
+    // Must set this to false so animation knows
+    // to start again
+  }
+
+  String secString = myTZ.dateTime("s");
+  if (secString.length() == 1) {
+    secString = "0" + secString;
+  }
+  tetris_sec.setNumbers(secString, forceRefresh);
+
+  finishedAnimating = false;
+
+}
+
+void handleColonAfterAnimation() {
+
+  // It will draw the colon every time, but when the colour is black it
+  // should look like its clearing it.
+  uint16_t colour =  showColon ? tetris.tetrisWHITE : tetris.tetrisBLACK;
+  // The x position that you draw the tetris animation object
+  int x = twelveHourFormat ? -6 : 2;
+  x += X_OFFSET;
+
+  // The y position adjusted for where the blocks will fall from
+  // (this could be better!)
+  int y = 10 + y_offset - (TETRIS_Y_DROP_DEFAULT * tetris.scale);
+  tetris.drawColon(x, y, colour);
+  x += 16 * 2 + 2;
+  tetris.drawColon(x, y, colour);
+
+  //dma_display->flipDMABuffer();  
+}
+
 static bool isinit = false;
 void element_clock_tetris_setup() {
   if (isinit) {
@@ -204,16 +295,14 @@ void element_clock_tetris_setup() {
   // https://github.com/mrfaptastic/ESP32-HUB75-MatrixPanel-I2S-DMA/issues/134#issuecomment-866367216
   //mxconfig.clkphase = false;
 
-  //mxconfig.driver = HUB75_I2S_CFG::FM6126A;
 
   // Display Setup
   dma_display = get_oled();
   dma_display->fillScreen(myBLACK);
-
   tetris.display = dma_display; // Main clock
-  tetris_s.display = dma_display; // Main clock
-  tetris2.display = dma_display; // The "M" of AM/PM
-  tetris3.display = dma_display; // The "P" or "A" of AM/PM
+  tetris_sec.display = dma_display; // Main clock
+  tetris_m.display = dma_display; // The "M" of AM/PM
+  tetris_pa.display = dma_display; // The "P" or "A" of AM/PM
 
   // // "connecting"
   // drawConnecting(45, -6 + y_offset);
@@ -248,71 +337,10 @@ void element_clock_tetris_setup() {
   finishedAnimating = false;
   displayIntro = false;
   tetris.scale = 2;
-  tetris_s.scale = 2;
+  tetris_sec.scale = 2;
  
   //tetris.setTime("00:00", true);
 }
-
-void setMatrixTime() {
-  String timeString = "";
-  String AmPmString = "";
-  if (twelveHourFormat) {
-    // Get the time in format "1:15" or 11:15 (12 hour, no leading 0)
-    // Check the EZTime Github page for info on
-    // time formatting
-    timeString = myTZ.dateTime("g:i");
-
-    //If the length is only 4, pad it with
-    // a space at the beginning
-    if (timeString.length() == 4) {
-      timeString = " " + timeString;
-    }
-
-    //Get if its "AM" or "PM"
-    AmPmString = myTZ.dateTime("A");
-    if (lastDisplayedAmPm != AmPmString) {
-      Serial.println(AmPmString);
-      lastDisplayedAmPm = AmPmString;
-      // Second character is always "M"
-      // so need to parse it out
-      tetris2.setText("M", forceRefresh);
-
-      // Parse out first letter of String
-      tetris3.setText(AmPmString.substring(0, 1), forceRefresh);
-    }
-  } else {
-    // Get time in format "01:15" or "22:15"(24 hour with leading 0)
-    timeString = myTZ.dateTime("H:i");
-  }
-
-  // Only update Time if its different
-  if (lastDisplayedTime != timeString) {
-    Serial.println(timeString);
-    lastDisplayedTime = timeString;
-    tetris.setTime(timeString, forceRefresh);
-
-    // Must set this to false so animation knows
-    // to start again
-    finishedAnimating = false;
-  }
-}
-
-void handleColonAfterAnimation() {
-
-  // It will draw the colon every time, but when the colour is black it
-  // should look like its clearing it.
-  uint16_t colour =  showColon ? tetris.tetrisWHITE : tetris.tetrisBLACK;
-  // The x position that you draw the tetris animation object
-  int x = twelveHourFormat ? -6 : 2;
-  x += X_OFFSET;
-
-  // The y position adjusted for where the blocks will fall from
-  // (this could be better!)
-  int y = 10 + y_offset - (TETRIS_Y_DROP_DEFAULT * tetris.scale);
-  tetris.drawColon(x, y, colour);
-  dma_display->flipDMABuffer();  
-}
-
 
 void element_clock_tetris_loop() {
   unsigned long now = millis();
@@ -320,23 +348,22 @@ void element_clock_tetris_loop() {
     // We can call this often, but it will only
     // update when it needs to
     setMatrixTime();
+
+
+
     showColon = !showColon;
 
     // To reduce flicker on the screen we stop clearing the screen
     // when the animation is finished, but we still need the colon to
     // to blink
     if (finishedAnimating) {
-      handleColonAfterAnimation();
+      //handleColonAfterAnimation();
     }
-
-    // String sec = myTZ.dateTime("s");
-    // tetris_s.drawText(0, 0);
-    // tetris_s.setText(sec, true);
 
     oneSecondLoopDue = now + 1000;
   }
   now = millis();
-  if (now > animationDue) {
+  if (now >= animationDue) {
     animationHandler();
     animationDue = now + animationDelay;
   }
