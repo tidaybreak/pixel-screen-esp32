@@ -159,12 +159,10 @@ void loop()
       String element = node["element"].as<String>();
       if (element == "countdown") {
           int secs = node["secs"].as<int>();
-          if (secs > 0) {
-            node["idx"] = i;
-            curr_node = &node;
-            element_countdown_setup(secs);
-            break;
-          }
+          node["idx"] = i;
+          curr_node = &node;
+          element_countdown_setup(secs);
+          break;
       }
       //Serial.println(element);
       i++;
