@@ -285,7 +285,10 @@ void startServer()
   }
   Serial.println("mDNS responder started");
   /*return index page which is stored in serverIndex */
-  server.on("/", dologin);
+  server.on("/", []()
+    {
+      dologin();
+    });
   server.on("/serverIndex", HTTP_GET, []()
             {
     server.sendHeader("Connection", "close");

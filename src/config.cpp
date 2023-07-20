@@ -4,12 +4,20 @@
 #include <ArduinoJson.h>
 #include <EEPROM.h>
 
-static CONF *conf = NULL;
+static CONF *conf_ = NULL;
+StaticJsonDocument<MAX_STRING_LENGTH> *doc_ = NULL;
+
+int ascendingCompare(JsonVariant a, JsonVariant b) {
+  if (a.as<int>() < b.as<int>()) return -1;
+  if (a.as<int>() > b.as<int>()) return 1;
+  return 0;
+}
 
 //****载入配置
 void loadconfig(CONF *c, StaticJsonDocument<MAX_STRING_LENGTH> *doc)
 {
-  conf = c;
+  conf_ = c;
+  doc_ = doc;
 
   EEPROM.begin(sizeof(CONF));
   EEPROM.get(0, *c);
@@ -23,6 +31,10 @@ void loadconfig(CONF *c, StaticJsonDocument<MAX_STRING_LENGTH> *doc)
     c->str_json[configStr.length()] = '\0';
     Serial.println("init conf:" + String(c->str_json));
   }
+//   JsonArray nodesArray = (*doc)["nodes"].as<JsonArray>();
+//    JsonArray arr = (*doc).to<JsonArray>();
+//    arr.sort(ascendingCompare);
+
 
   // e_int.val_b[0] = EEPROM.read(0);
   // e_int.val_b[1] = EEPROM.read(1);
@@ -86,11 +98,16 @@ void saveconfig(String &str)
   }
 
   EEPROM.begin(sizeof(CONF));
-  strncpy(conf->str_json, str.c_str(), str.length());
-  conf->str_json[str.length()] = '\0';
-  EEPROM.put(0, *conf);
+  strncpy(conf_->str_json, str.c_str(), str.length());
+  conf_->str_json[str.length()] = '\0';
+  EEPROM.put(0, *conf_);
   EEPROM.commit();
-  Serial.println("save config success! json length:" + String(str.length()) + VAL(conf->str_json));
+
+  DeserializationError error = deserializeJson(*doc_, conf_->str_json);
+  if (error) {
+  }
+
+  Serial.println("save config success! json length:" + String(str.length()) + VAL(conf_->str_json));
 
 
   // e_int.val = conf.temp_mod;

@@ -19,6 +19,7 @@
 //#include <ArduinoJson.h>
 
 #include "element/clock/tetris/tetris.h"
+#include "element/countdown/countdown.h"
 
 
 // bdd
@@ -33,6 +34,7 @@ int netpage_wait = 0;
 
 CONF conf;
 StaticJsonDocument<MAX_STRING_LENGTH> doc_conf;
+JsonObject *curr_node= NULL;
 DATATIME timenow;
 DATACLOCK clockinfo;
 WEATHER weatherinfo;
@@ -144,14 +146,51 @@ void loop()
     startServer();
     setSyncProvider(getNtpTime);
     timenow.GetTime();
-    element_clock_tetris_setup();
   }
 
   // 读温度
   dht11read(&clockinfo);
 
-  element_clock_tetris_loop();
-  // PxMatrix_demo_override_spi_pins_esp32_loop();
+
+  JsonArray nodesArray = doc_conf["nodes"].as<JsonArray>();
+  if (curr_node == NULL) {
+    int i = 0;
+    for (JsonObject node : nodesArray) {
+      String element = node["element"].as<String>();
+      if (element == "countdown") {
+          int secs = node["secs"].as<int>();
+          if (secs > 0) {
+            node["idx"] = i;
+            curr_node = &node;
+            element_countdown_setup(secs);
+            break;
+          }
+      }
+      //Serial.println(element);
+      i++;
+    }
+  }
+
+  if (curr_node != NULL) {
+    String element = (*curr_node)["element"].as<String>();
+    if (element == "countdown") {
+      if (element_countdown_loop()) {
+        doc_conf["nodes"].remove((*curr_node)["idx"].as<int>());
+        curr_node = NULL;
+      }
+    } else {
+      curr_node = NULL;
+    }
+  }
+
+  if (curr_node == NULL) {
+    for (JsonObject node : nodesArray) {
+      String element = node["element"].as<String>();
+      if (element == "clock_teris") {
+        element_clock_tetris_loop();
+      }
+    }
+  }
 
   delay(100);
   return; 

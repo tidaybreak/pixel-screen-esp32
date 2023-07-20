@@ -348,6 +348,8 @@ void element_clock_tetris_setup() {
 }
 
 void element_clock_tetris_loop() {
+  element_clock_tetris_setup();
+  
   if (dma_display == nullptr) {
     return ;
   }
