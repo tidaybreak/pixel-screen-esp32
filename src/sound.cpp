@@ -124,6 +124,28 @@ void common_play() {
     //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
     int noteDuration = ( 800 / 8 ) * noteDurations[thisNote];
     ledcSetup(LEDC_CHANNEL_0, melody[thisNote] , LEDC_TIMER_13_BIT);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     ledcAttachPin(LED_PIN, LEDC_CHANNEL_0);
     ledcWrite(LEDC_CHANNEL_0, 50);
     delay(noteDuration * 2.30);

@@ -1,10 +1,9 @@
-winlinvip/SimpleDHT@^1.0.15
 marian-craciunescu/ESP32Ping@^1.7
-mrfaptastic/ESP32 HUB75 LED MATRIX PANEL DMA Display@^3.0.9
-tzapu/WiFiManager@^0.16.0
-toblum/TetrisAnimation@^1.1.0
-ropg/ezTime@^0.8.3
 adafruit/Adafruit GFX Library@^1.11.5
 bblanchon/ArduinoJson@^6.21.2
+winlinvip/SimpleDHT@^1.0.15
 2dom/PxMatrix LED MATRIX library@^1.8.2
+ropg/ezTime@^0.8.3
+toblum/TetrisAnimation@^1.1.0
+mrfaptastic/ESP32 HUB75 LED MATRIX PANEL DMA Display@^3.0.9
 paulstoffregen/Time@^1.6.1

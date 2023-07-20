@@ -16,10 +16,10 @@
 #define B1_PIN 27
 #define R2_PIN 14
 #define G2_PIN 12
-#define B2_PIN 13
+#define  B2_PIN 13
 #define A_PIN 23
 #define B_PIN 19
-#define C_PIN 5
+#define C_PIN 5 
 #define D_PIN 17
 #define E_PIN -1 // required for 1/32 scan panels, like 64x64px. Any available pin would do, i.e. IO32
 #define LAT_PIN 4
@@ -685,8 +685,19 @@ void clearOLED()
 void initOLED(int panel_chain, int light)
 {
 
-  HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, R2_PIN, G2_PIN, B2_PIN, A_PIN, B_PIN, C_PIN, D_PIN, E_PIN, LAT_PIN, OE_PIN, CLK_PIN};
-
+  // esp32
+  HUB75_I2S_CFG::i2s_pins _pins = {R1_PIN, G1_PIN, B1_PIN, R2_PIN, G2_PIN, B2_PIN, A_PIN, B_PIN, C_PIN, D_PIN, 32, LAT_PIN, OE_PIN, CLK_PIN};
+  //HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, 18,      22,    3,      A_PIN, B_PIN, C_PIN, D_PIN, 32, LAT_PIN, 33,     CLK_PIN};
+ 
+  // esp32 wrover kit
+  //   ESP32管脚  JTAG信号
+  // 1 EN          TRST_N
+  // 2 MTMS/GPIO14 TMS
+  // 3 MTDO/GPIO15 TDO
+  // 4 MTDI/GPIO12 TDI
+  // 5 MTCK/GPIO13 TCK
+  //HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, R2_PIN, 12, 13, A_PIN, B_PIN, C_PIN, 18, 2, LAT_PIN, OE_PIN, 22};
+ 
   // Module configuration
   HUB75_I2S_CFG mxconfig(
       PANEL_RES_X, // module width
@@ -697,17 +708,20 @@ void initOLED(int panel_chain, int light)
 
   mxconfig.double_buff = true;
 
-  mxconfig.gpio.e = 32;
+  //mxconfig.gpio.e = 2;  
   mxconfig.clkphase = false;
   mxconfig.driver = HUB75_I2S_CFG::FM6126A;
 
-  // Display Setup 会影响jtag调试
+  // Display Setup 会影响jtag调试 Bus_Parallel16::init中以下逻辑
+  // for(int i = 0; i < bus_width; i++) 
+  // _gpio_pin_init(pins[i]);
   dma_display = new MatrixPanel_I2S_DMA(mxconfig);
   dma_display->begin();
   dma_display->setBrightness8(50); // 0-255
   dma_display->clearScreen();
   dma_display->fillScreen(myBLACK);
 }
+
 void setBrightness(int dianya, int light)
 {
   dma_display->setBrightness8(light * dianya); // 0-255
