@@ -281,8 +281,8 @@ Modified heavily for the ESP32 HUB75 DMA library by:
     
     // Serial clock 
 	// ESP32 and ESP32-S2 TRM clearly say that "Note that I2S_TX_BCK_DIV_NUM[5:0] must not be configured as 1."
-    dev->sample_rate_conf.rx_bck_div_num = 2;
-    dev->sample_rate_conf.tx_bck_div_num = 2;
+    dev->sample_rate_conf.rx_bck_div_num = 6;
+    dev->sample_rate_conf.tx_bck_div_num = 6;
     
     ////////////////////////////// END CLOCK CONFIGURATION /////////////////////////////////
 

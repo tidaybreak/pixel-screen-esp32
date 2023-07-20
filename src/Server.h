@@ -5,7 +5,8 @@
 
 time_t getNtpTime();
 
-void updateServer();
+void startServer();
+void stopServer();
 
 void handleApiRequest();
 

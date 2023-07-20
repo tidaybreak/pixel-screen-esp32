@@ -97,50 +97,11 @@ bool getConf(CONF *conf, String &macAddr)
       Serial.println("run update");
       conf->temp_mod = atoi(DATA_temp);
       conf->hum_mod = atoi(DATA_hum);
-      conf->city = DATA_chengshi;
-      conf->zx_key = DATA_tianqikey;
+      //conf->city = DATA_chengshi;
+      //conf->zx_key = DATA_tianqikey;
       conf->light = atoi(DATA_light);
       conf->starnum = atoi(DATA_starnum);
-      if (strcmp(DATA_soundon, "true") == 0)
-      {
-        conf->soundon = true;
-      }
-      else
-      {
-        conf->soundon = false;
-      }
-      if (strcmp(DATA_caidaion, "true") == 0)
-      {
-        conf->caidaion = true;
-      }
-      else
-      {
-        conf->caidaion = false;
-      }
-      if (strcmp(DATA_isDoubleBuffer, "true") == 0)
-      {
-        conf->isDoubleBuffer = true;
-      }
-      else
-      {
-        conf->isDoubleBuffer = false;
-      }
-      if (strcmp(DATA_isnightmode, "true") == 0)
-      {
-        conf->isnightmode = true;
-      }
-      else
-      {
-        conf->isnightmode = false;
-      }
-      if (strcmp(DATA_twopannel, "true") == 0)
-      {
-        conf->twopannel = true;
-      }
-      else
-      {
-        conf->twopannel = false;
-      }
+      
       return true;
     }
   }
@@ -236,8 +197,8 @@ void getWeather(DATACLOCK *cinfo, CONF &conf) {
   HTTPClient http;
 
   // We now create a URI for the request
-  if(conf.zx_key.length() > 5 && conf.city.length() > 0){
-  String url = "https://devapi.heweather.net/v7/weather/now?key="+conf.zx_key+"&location="+conf.city+"&unit=m&lang=zh&gzip=n";;
+  if(false){
+  String url = "https://devapi.heweather.net/v7/weather/now?key=&location=&unit=m&lang=zh&gzip=n";;
   http.begin(url.c_str());
   String payload ;
   //发起http get请求
@@ -320,13 +281,13 @@ void getWeather(DATACLOCK *cinfo, CONF &conf) {
 void get3DayWeather(WEATHER *winfo, NIGHTCOLOR &nightcolor, CONF &conf) {
   HTTPClient http;
   // We now create a URI for the request
-  if (conf.zx_key.length() > 5 && conf.city.length() > 0) {
-    String url = "https://devapi.qweather.com/v7/weather/3d?key=" + conf.zx_key + "&location=" + conf.city + "&unit=m&lang=zh&gzip=n";;
+  if (false) {
+    String url = "https://devapi.qweather.com/v7/weather/3d?key=&location=&unit=m&lang=zh&gzip=n";;
     http.begin(url.c_str());
     String payload ;
     //发起http get请求
     int httpResponseCode = http.GET();
-    Serial.println(String(conf.zx_key) + String("|") + String(conf.city) + String(url) + String(" get3DayWeather HTTP Response code:") + String(httpResponseCode));
+    //Serial.println(String(conf.zx_key) + String("|") + String(conf.city) + String(url) + String(" get3DayWeather HTTP Response code:") + String(httpResponseCode));
 
     if (httpResponseCode == 200) {
       payload = http.getString();

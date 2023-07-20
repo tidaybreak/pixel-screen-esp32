@@ -3,14 +3,16 @@
 #include "SPIFFS.h"
 #include <WiFiUdp.h>
 #include <ESPmDNS.h>
+#include <ArduinoJson.h>
 #include <Update.h>
 #include <HTTPClient.h>
 #include <WebServer.h>
 #include "ShowDisplay.h"
 #include "OLEDDriver.h"
+#include "config.h"
 
 
-WebServer server(8080);
+WebServer server(80);
 const char *host = "esp32";
 const char *username = "admin";
 const char *userpass = "000000";
@@ -33,14 +35,15 @@ const char *serverIndex =
     "function submit2() {      $.ajax({ type: 'GET', url: '/get', data: {reboot:1 }, dataType: 'html', success: function(result) {   alert('已重启！');}     });   };"
     "function submit3() {      $.ajax({ type: 'GET', url: '/regclock', data: {clockname: $('#clockname').val()}, dataType: 'html', success: function(result) {   alert('已注册！');}     });   };"
     "function submit4() {      $.ajax({ type: 'GET', url: '/text', data: {text: $('#text').val(), args: $('#args').val()}, dataType: 'html', success: function(result) {   }     });   };"
+    "function sub_config() {      $.ajax({ type: 'POST', url: '/config', data: {content: $('#config').val()}, dataType: 'html', success: function(result) {   }     });   };"
     "</script></head>"
     "<body bgcolor=lightyellow >"
-    "<table border='1' bgcolor=lightblue><tr><td border='0' colspan='4'  align=center><h1>DaClock设置</h1></td>"
+    "<table border='1' bgcolor=lightblue><tr><td border='0' colspan='4'  align=center><h1>设置</h1></td>"
     "<tr><td><form method='POST' action='configwifi'><label class='input'><span>WiFi SSID</span></td><td><input type='text' name='ssid' value=''></label></td></tr>"
     "<tr><td><label><span>WiFi PASS</span></td><td><input type='text'  name='pass'></label></td></tr><tr><td><input  type='submit' name='submit' value='Submie'></td><td><input type='submit' value='重启时钟'/ onclick='submit2()'></input></td></tr></form>"
     "<tr><td>时钟昵称:</td><td><input id='clockname' type='text' value=''></td></tr>"
     "<tr><td><input type='submit' value='显示文字'/ onclick='submit4()'></input></td><td><input type='text' id='text' value=''><input type='text' id='args' value='1,-1,-1,FFFF00,1' width='50px'></td></tr>"
-    "<tr><td><input type='submit' value='注册时钟'/ onclick='submit3()'></input></td><td><a href='http://82.157.26.5' target='view_frame'>更多配置</a></td></tr>"
+    "<tr><td><input type='submit' value='配置'/ onclick='sub_config()'></td><td><textarea style='width:1000px;height:500px' id='config' name='config' placeholder='json config'></textarea></td></tr>"
     "<tr><td><form method='POST' action='/upload' enctype='multipart/form-data'>"
     "GIF:</td><td><input type='file' name='update' id='update'><input type='submit' value='提交'></form></td></tr>"
     "<tr><td>更新固件：</td>"
@@ -78,8 +81,15 @@ const char *serverIndex =
     "}"
     "});"
     "});"
+    "$(document).ready(function() {"
+    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"clock_teris\",\"args\":\"val\"},{\"element\":\"countdown\",\"secs\":120}]}';"
+    "var jsonData = JSON.parse(configStr);"
+    "var formattedData = JSON.stringify(jsonData, null, 2);"
+    "$('#config').val(formattedData);"
+    ""
+    "});"
     "</script>";
-
+// json https://www.json.cn/json/jsonzip.html
 
 
 // send an NTP request to the time server at the given address
@@ -179,6 +189,55 @@ void handleSet() // 回调函数
 }
 
 
+void handleConfig() {
+  String requestBody = server.arg("content");
+
+  StaticJsonDocument<512> doc;
+  DeserializationError error = deserializeJson(doc, requestBody);
+  Serial.println("Received length:" + String(requestBody.length()) + " data: " + requestBody);
+  if (error) {
+    Serial.print("deserializeJson() failed: ");
+    Serial.println(error.c_str());
+    server.send(200, "text/plain", "alert('deserializeJson() failed!')");
+    return;
+  }
+
+  // Accessing top-level elements
+  String s1Value = doc["s1"].as<String>();
+  int i1Value = doc["i1"].as<int>();
+
+  Serial.print("s1: ");
+  Serial.println(s1Value);
+  Serial.print("i1: ");
+  Serial.println(i1Value);
+
+  // Accessing the "nodes" array
+  JsonArray nodesArray = doc["nodes"].as<JsonArray>();
+
+  for (JsonObject node : nodesArray) {
+    String nodeName = node["name"].as<String>();
+    String nodeArgs = node["args"].as<String>();
+
+    Serial.print("Node Name: ");
+    Serial.println(nodeName);
+    Serial.print("Node Args: ");
+    Serial.println(nodeArgs);
+  }
+
+
+ String compressedJson = "";
+  for (size_t i = 0; i < requestBody.length(); i++) {
+    char c = requestBody.charAt(i);
+    if (c != ' ' && c != '\t' && c != '\n' && c != '\r') {
+      compressedJson += c;
+    }
+  }
+  saveconfig(compressedJson);
+
+  server.send(200, "text/plain", "alert('success!')");
+
+}
+
 
 void handleText() // 回调函数
 {
@@ -209,7 +268,7 @@ void handleText() // 回调函数
 }
 
 
-void updateServer()
+void startServer()
 {
    if (is_running) {
     return;
@@ -275,12 +334,17 @@ void updateServer()
       });
   server.on("/get", HTTP_GET, handleSet);
   server.on("/text", HTTP_GET, handleText);
+  server.on("/config", HTTP_POST, handleConfig);
   server.on("/regclock", HTTP_GET, handlereg);
   server.begin();
   is_running = true;
 }
 
 
+void stopServer() {
+  server.stop();
+  is_running = false;
+}
 
 time_t getNtpTime()
 {

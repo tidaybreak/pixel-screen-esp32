@@ -5,7 +5,7 @@
 #include "OLEDDriver.h"
 #include <WebServer.h>
 
-WebServer server_client(80);
+static WebServer server_client(80);
 // AP模式IP
 IPAddress apIP(192, 168, 4, 1);
 const char *AP_SSID = "Pixel"; // 设置AP热点名称

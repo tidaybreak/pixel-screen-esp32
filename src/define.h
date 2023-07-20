@@ -34,6 +34,9 @@
 
 #define MYTIMEZONE "Asia/Shanghai"
 
+#define MAX_STRING_LENGTH 1 * 1024
+
+
 PROGMEM const unsigned char iconwifi[]= 
 {0x00,0x00,0x0F,0x00,0x30,0xC0,0x40,0x20,0x0F,0x00,0x30,0xC0,0x06,0x00,0x09,0x00,0x00,0x00,0x06,0x00,0x00,0x00,0x00,0x00};/*"C:\Users\dudle\Pictures\wifi.bmp",0*/
 
@@ -42,14 +45,16 @@ struct CONF {
   int hum_mod = 0;   // 湿度微调参数
   int light = 0;
   int starnum = 20;
-  boolean soundon = true;
-  boolean caidaion = true;
-  boolean twopannel = true;
-  boolean isDoubleBuffer = true;
-  boolean isnightmode = true;
+  // boolean soundon = true;
+  // boolean caidaion = true;
+  // boolean twopannel = true;
+  // boolean isDoubleBuffer = true;
+  // boolean isnightmode = true;
   
-  String zx_key = "";
-  String city = "";
+  // String zx_key = "";
+  // String city = "";
+
+  char str_json[MAX_STRING_LENGTH + 1];
 
 };
 

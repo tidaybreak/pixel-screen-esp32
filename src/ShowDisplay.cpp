@@ -409,7 +409,7 @@ void showTime(DATATIME &t, CONF &conf, DATACLOCK &cinfo, WEATHER &winfo, NIGHTCO
 {
 
   const char *v_week = showWeek(&ncolor, t.week);
-  if (t.minu == 0 && t.sec == 0 && conf.soundon && t.hou < 21 && t.hou > 7)
+  if (t.minu == 0 && t.sec == 0 && t.hou < 21 && t.hou > 7)
   {
     xTaskCreate(
         housound,   /* Task function. */
@@ -513,7 +513,7 @@ void showTime(DATATIME &t, CONF &conf, DATACLOCK &cinfo, WEATHER &winfo, NIGHTCO
   }
   disSmallNumbers(t.sec_ten, 28, 47 + yy2, ncolor.color, isnight);
   disSmallNumbers(t.sec_one, 28, 54 + yy2, ncolor.color, isnight);
-  if (conf.caidaion)
+  if (true)
   {
     drawLine(0, 0, 64, t.sec_one, isnight);        // 上线
     drawLine(0, 42 + yy2, 64, t.sec_one, isnight); // 分隔线
@@ -553,7 +553,7 @@ void showTigger(DATATIME &t, CONF &conf, DATACLOCK &cinfo, boolean isnight)
   {
     // 显示老虎
     showlaohu();
-    if (conf.soundon)
+    if (true)
     {
       drawBit(65, 52, laba, 12, 12, TFT_GREEN, isnight);
     }
