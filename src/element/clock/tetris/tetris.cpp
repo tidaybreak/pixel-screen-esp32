@@ -304,6 +304,7 @@ void element_clock_tetris_setup() {
   }
 
   dma_display->fillScreen(myBLACK);
+  
   tetris.display = dma_display; // Main clock
   tetris_sec.display = dma_display; // Main clock
   tetris_m.display = dma_display; // The "M" of AM/PM
@@ -349,7 +350,7 @@ void element_clock_tetris_setup() {
 
 void element_clock_tetris_loop() {
   element_clock_tetris_setup();
-  
+
   if (dma_display == nullptr) {
     return ;
   }

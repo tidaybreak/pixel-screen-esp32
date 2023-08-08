@@ -480,7 +480,7 @@ uint16_t color_to_color565(const char *color) {
   int red = hexToDecimal(hexValue.substring(0, 2));
   int green = hexToDecimal(hexValue.substring(2, 4));
   int blue = hexToDecimal(hexValue.substring(4, 6));
-  LOG_DEBUG(String(color) + " " + String(red) + " " + String(green) + " " + String(blue));
+  //LOG_DEBUG(String(color) + " " + String(red) + " " + String(green) + " " + String(blue));
   return dma_display->color565(red, green, blue);
 }
 
@@ -671,10 +671,13 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
       break;
     }
   }
+  dma_display->flipDMABuffer();
+
 }
 
 void fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, const char *color) {
-  dma_display->fillRect(x, y, w, h, color_to_color565(color)); 
+  dma_display->fillRect(x, y, w, h, color_to_color565(color));
+  dma_display->flipDMABuffer();
 }
 
 MatrixPanel_I2S_DMA *get_oled() {

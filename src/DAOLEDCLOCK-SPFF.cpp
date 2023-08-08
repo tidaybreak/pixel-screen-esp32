@@ -20,6 +20,7 @@
 
 #include "element/clock/tetris/tetris.h"
 #include "element/countdown/countdown.h"
+#include "element/command/command.h"
 
 
 // bdd
@@ -163,6 +164,13 @@ void loop()
           curr_node = &node;
           element_countdown_setup(secs);
           break;
+      } else if (element == "command") {
+          String command = node["command"].as<String>();
+          String args = node["args"].as<String>();
+          int de = node["delay"].as<int>();
+          node["idx"] = i;
+          curr_node = &node;
+          element_command_setup(command, args, de);
       }
       //Serial.println(element);
       i++;
@@ -173,6 +181,11 @@ void loop()
     String element = (*curr_node)["element"].as<String>();
     if (element == "countdown") {
       if (element_countdown_loop()) {
+        doc_conf["nodes"].remove((*curr_node)["idx"].as<int>());
+        curr_node = NULL;
+      }
+    } else if (element == "command") {
+      if (element_command_loop()) {
         doc_conf["nodes"].remove((*curr_node)["idx"].as<int>());
         curr_node = NULL;
       }

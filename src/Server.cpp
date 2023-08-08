@@ -82,7 +82,7 @@ const char *serverIndex =
     "});"
     "});"
     "$(document).ready(function() {"
-    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"clock_teris\",\"args\":\"val\"},{\"element\":\"countdown\",\"secs\":10}]}';"
+    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"clock_teris\",\"args\":\"val\"},{\"element\":\"countdown\",\"secs\":10},{\"element\":\"command\",\"command\":\"command\",\"args\":\"1,-1,-1,FFFF00,1\",\"delay\":10}]}';"
     "var jsonData = JSON.parse(configStr);"
     "var formattedData = JSON.stringify(jsonData, null, 2);"
     "$('#config').val(formattedData);"
