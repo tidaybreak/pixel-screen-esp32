@@ -82,7 +82,7 @@ const char *serverIndex =
     "});"
     "});"
     "$(document).ready(function() {"
-    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"clock_teris\",\"args\":\"val\"},{\"element\":\"countdown\",\"secs\":120}]}';"
+    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"clock_teris\",\"args\":\"val\"},{\"element\":\"countdown\",\"secs\":10}]}';"
     "var jsonData = JSON.parse(configStr);"
     "var formattedData = JSON.stringify(jsonData, null, 2);"
     "$('#config').val(formattedData);"
@@ -262,7 +262,11 @@ void handleText() // 回调函数
 
   Serial.println(String("handleText:") + content + " " + args + " " + String(x) + String(y) + String(clear) + color + String(fsize));
 
-  text(content, clear, x, y, color.c_str(), fsize);
+  if (content == "command test") {
+    fill_rect(0, 0, 128, 64, color.c_str());
+  } else {
+    text(content, clear, x, y, color.c_str(), fsize);
+  }
 
   server.send(200, "text/plain", "alert('success!')");
 }

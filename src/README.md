@@ -23,3 +23,6 @@ lib_deps =
 	2dom/PxMatrix LED MATRIX library@^1.8.2
 	ropg/ezTime@^0.8.3
 	mrfaptastic/ESP32 HUB75 LED MATRIX PANEL DMA Display@^3.0.9
+
+
+PS C:\Espressif\frameworks\esp-idf-v5.1-2> openocd -f board/esp32-wrover-kit-3.3v.cfg

@@ -26,10 +26,11 @@ void loadconfig(CONF *c, StaticJsonDocument<MAX_STRING_LENGTH> *doc)
   DeserializationError error = deserializeJson(*doc, c->str_json);
   if (error) {
     Serial.println("deserializeJson() failed, init!");
-    String configStr = "{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"clock_teris\",\"args\":\"val\"},{\"element\":\"countdown\",\"secs\":120}]}";
+    String configStr = "{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"clock_teris\",\"args\":\"val\"},{\"element\":\"countdown\",\"secs\":10}]}";
     strncpy(c->str_json, configStr.c_str(), configStr.length());
     c->str_json[configStr.length()] = '\0';
     Serial.println("init conf:" + String(c->str_json));
+    deserializeJson(*doc_, c->str_json);
   }
 //   JsonArray nodesArray = (*doc)["nodes"].as<JsonArray>();
 //    JsonArray arr = (*doc).to<JsonArray>();

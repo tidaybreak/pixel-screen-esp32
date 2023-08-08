@@ -673,6 +673,10 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
   }
 }
 
+void fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, const char *color) {
+  dma_display->fillRect(x, y, w, h, color_to_color565(color)); 
+}
+
 MatrixPanel_I2S_DMA *get_oled() {
   return dma_display;
 }
@@ -686,8 +690,7 @@ void initOLED(int panel_chain, int light)
 {
 
   // esp32
-  HUB75_I2S_CFG::i2s_pins _pins = {R1_PIN, G1_PIN, B1_PIN, R2_PIN, G2_PIN, B2_PIN, A_PIN, B_PIN, C_PIN, D_PIN, 32, LAT_PIN, OE_PIN, CLK_PIN};
-  //HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, 18,      22,    3,      A_PIN, B_PIN, C_PIN, D_PIN, 32, LAT_PIN, 33,     CLK_PIN};
+  //HUB75_I2S_CFG::i2s_pins _pins = {R1_PIN, G1_PIN, B1_PIN, R2_PIN, G2_PIN, B2_PIN, A_PIN, B_PIN, C_PIN, D_PIN, 32, LAT_PIN, OE_PIN, CLK_PIN};
  
   // esp32 wrover kit
   //   ESP32管脚  JTAG信号
@@ -696,7 +699,7 @@ void initOLED(int panel_chain, int light)
   // 3 MTDO/GPIO15 TDO
   // 4 MTDI/GPIO12 TDI
   // 5 MTCK/GPIO13 TCK
-  //HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, R2_PIN, 12, 13, A_PIN, B_PIN, C_PIN, 18, 2, LAT_PIN, OE_PIN, 22};
+  HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, R2_PIN, 12, 13, A_PIN, B_PIN, C_PIN, 18, 2, LAT_PIN, OE_PIN, 22};
  
   // Module configuration
   HUB75_I2S_CFG mxconfig(

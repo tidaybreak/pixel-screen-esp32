@@ -51,8 +51,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "c:/Users/Administrator/Documents/PlatformIO/Projects/230708-162713-esp32dev/.pio/build/esp-wrover-kit/firmware.elf",
-            "projectEnvName": "esp-wrover-kit",
+            "executable": "c:/Users/Administrator/Documents/PlatformIO/Projects/230708-162713-esp32dev/.pio/build/esp32dev/firmware.elf",
+            "projectEnvName": "esp32dev",
             "toolchainBinDir": "C:/Users/Administrator/.platformio/packages/toolchain-xtensa-esp32@8.4.0+2021r2-patch5/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": {
@@ -64,8 +64,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "c:/Users/Administrator/Documents/PlatformIO/Projects/230708-162713-esp32dev/.pio/build/esp-wrover-kit/firmware.elf",
-            "projectEnvName": "esp-wrover-kit",
+            "executable": "c:/Users/Administrator/Documents/PlatformIO/Projects/230708-162713-esp32dev/.pio/build/esp32dev/firmware.elf",
+            "projectEnvName": "esp32dev",
             "toolchainBinDir": "C:/Users/Administrator/.platformio/packages/toolchain-xtensa-esp32@8.4.0+2021r2-patch5/bin",
             "internalConsoleOptions": "openOnSessionStart"
         },
@@ -73,8 +73,8 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-            "executable": "c:/Users/Administrator/Documents/PlatformIO/Projects/230708-162713-esp32dev/.pio/build/esp-wrover-kit/firmware.elf",
-            "projectEnvName": "esp-wrover-kit",
+            "executable": "c:/Users/Administrator/Documents/PlatformIO/Projects/230708-162713-esp32dev/.pio/build/esp32dev/firmware.elf",
+            "projectEnvName": "esp32dev",
             "toolchainBinDir": "C:/Users/Administrator/.platformio/packages/toolchain-xtensa-esp32@8.4.0+2021r2-patch5/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "loadMode": "manual"
