@@ -12,6 +12,8 @@ static int init_timestamp_ = 0;
 bool do_action = false;
 
 void element_command_setup(String &command_, String &args_, int delay_) {
+  Serial.println("element_command_setup:" + command_);
+
   command = command_;
   args = args_;
   delay_sec = delay_;

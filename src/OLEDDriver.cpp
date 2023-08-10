@@ -10,6 +10,14 @@
 #include "MyFont.h"
 #include "Arduino_GB2312_library_24.h"
 #include "Arduino_GB2312_library_32.h"
+#ifndef NO_GFX
+ #include <Fonts/FreeSans9pt7b.h>
+ #include <Fonts/FreeSans12pt7b.h>
+ #include <Fonts/FreeSans18pt7b.h>
+ #include <Fonts/FreeSans24pt7b.h>
+#endif
+
+const GFXfont *font = &FreeSans24pt7b;
 
 #define R1_PIN 25
 #define G1_PIN 26
@@ -590,6 +598,7 @@ int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &wi
   if (color565 == 0) {
     color565 = dma_display->color565(255, 255, 0);
   }
+  dma_display->setFont(font);
   dma_display->setTextSize(fsize);
   dma_display->setTextColor(color565, 0);
   dma_display->print(words);

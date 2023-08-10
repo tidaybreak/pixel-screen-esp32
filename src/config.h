@@ -7,6 +7,9 @@
 
 struct CONF;
 
+
+void initconfig(int *curr_idx_);
+
 void loadconfig(CONF *c, StaticJsonDocument<MAX_STRING_LENGTH> *doc);
 
 void saveconfig(String &conf);

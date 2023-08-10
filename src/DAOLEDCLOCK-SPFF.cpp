@@ -35,7 +35,7 @@ int netpage_wait = 0;
 
 CONF conf;
 StaticJsonDocument<MAX_STRING_LENGTH> doc_conf;
-JsonObject *curr_node= NULL;
+static int curr_idx = -1;
 DATATIME timenow;
 DATACLOCK clockinfo;
 WEATHER weatherinfo;
@@ -108,6 +108,7 @@ void setup()
 {
   Serial.begin(115200);
   get_system_info();
+  initconfig(&curr_idx);
   loadconfig(&conf, &doc_conf);
   initOLED(PANEL_CHAIN, conf.light);
 
@@ -154,52 +155,54 @@ void loop()
 
 
   JsonArray nodesArray = doc_conf["nodes"].as<JsonArray>();
-  if (curr_node == NULL) {
+  if (curr_idx == -1) {
     int i = 0;
     for (JsonObject node : nodesArray) {
+      curr_idx = i;
       String element = node["element"].as<String>();
-      if (element == "countdown") {
+      if (element == "clock_teris") {
           int secs = node["secs"].as<int>();
-          node["idx"] = i;
-          curr_node = &node;
+          element_clock_tetris_setup();
+          break;
+      } else if (element == "countdown") {
+          int secs = node["secs"].as<int>();
           element_countdown_setup(secs);
           break;
       } else if (element == "command") {
           String command = node["command"].as<String>();
           String args = node["args"].as<String>();
           int de = node["delay"].as<int>();
-          node["idx"] = i;
-          curr_node = &node;
           element_command_setup(command, args, de);
+          break;
+      } else {
+        curr_idx = -1;
       }
       //Serial.println(element);
       i++;
     }
-  }
+  } 
 
-  if (curr_node != NULL) {
-    String element = (*curr_node)["element"].as<String>();
-    if (element == "countdown") {
-      if (element_countdown_loop()) {
-        doc_conf["nodes"].remove((*curr_node)["idx"].as<int>());
-        curr_node = NULL;
-      }
-    } else if (element == "command") {
-      if (element_command_loop()) {
-        doc_conf["nodes"].remove((*curr_node)["idx"].as<int>());
-        curr_node = NULL;
-      }
-    } else {
-      curr_node = NULL;
+  if (curr_idx == -1) {
+    delay(100);
+    return; 
+  } 
+
+  JsonObject curr_node = ((JsonObject)(nodesArray[curr_idx]));
+
+  String element = curr_node["element"].as<String>();
+  if (element == "clock_teris") {
+    element_clock_tetris_loop();
+  } else if (element == "countdown") {
+    if (element_countdown_loop()) {
+      Serial.println("remove idx:" + String(curr_idx));
+      doc_conf["nodes"].remove(curr_idx);
+      curr_idx = -1;
     }
-  }
-
-  if (curr_node == NULL) {
-    for (JsonObject node : nodesArray) {
-      String element = node["element"].as<String>();
-      if (element == "clock_teris") {
-        element_clock_tetris_loop();
-      }
+  } else if (element == "command") {
+    if (element_command_loop()) {
+      Serial.println("remove idx:" + String(curr_idx));
+      doc_conf["nodes"].remove(curr_idx);
+      curr_idx = -1;
     }
   }
 

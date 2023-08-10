@@ -4,6 +4,7 @@
 #include <ArduinoJson.h>
 #include <EEPROM.h>
 
+int *curr_idx = NULL;
 static CONF *conf_ = NULL;
 StaticJsonDocument<MAX_STRING_LENGTH> *doc_ = NULL;
 
@@ -11,6 +12,10 @@ int ascendingCompare(JsonVariant a, JsonVariant b) {
   if (a.as<int>() < b.as<int>()) return -1;
   if (a.as<int>() > b.as<int>()) return 1;
   return 0;
+}
+
+void initconfig(int *curr_idx_) {
+  curr_idx = curr_idx_;
 }
 
 //****载入配置
@@ -110,6 +115,8 @@ void saveconfig(String &str)
 
   Serial.println("save config success! json length:" + String(str.length()) + VAL(conf_->str_json));
 
+  //*curr_node_ = NULL;
+  *curr_idx = -1;
 
   // e_int.val = conf.temp_mod;
   // EEPROM.write(0, e_int.val_b[0]); // temo
