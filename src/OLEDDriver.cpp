@@ -17,7 +17,6 @@
  #include <Fonts/FreeSans24pt7b.h>
 #endif
 
-const GFXfont *font = &FreeSans24pt7b;
 
 #define R1_PIN 25
 #define G1_PIN 26
@@ -572,7 +571,7 @@ int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize,
 
 }
 
-int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &width, int &height)
+int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &width, int &height, const char *font)
 {
   int space = 1; 
   // 1 is default 6x8, 2 is 12x16, 3 is 18x24, etc
@@ -598,16 +597,26 @@ int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &wi
   if (color565 == 0) {
     color565 = dma_display->color565(255, 255, 0);
   }
-  dma_display->setFont(font);
+  if (font != NULL) {
+    if (strcmp(font, "FreeSans9pt7b") == 0) {
+      dma_display->setFont(&FreeSans9pt7b);
+      space += 6;
+    } else if (strcmp(font, "FreeSans18pt7b") == 0) {
+      dma_display->setFont(&FreeSans18pt7b);
+      space += 12;
+    }
+  } else {
+    dma_display->setFont(NULL);
+  }
+
   dma_display->setTextSize(fsize);
   dma_display->setTextColor(color565, 0);
   dma_display->print(words);
 
-
   return space;
 }
 
-void text(const String &content, bool clear, int x, int y, const char *color, int fsize)
+void text(const String &content, bool clear, int x, int y, const char *color, int fsize, const char *font)
 {
   /*
 
@@ -656,14 +665,18 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
         space = draw_gb2312(x_cursor, y, b, color565, fsize, width, height);
         i += 3;
     } else {
-        space = draw_ascii(String(str[i]), x_cursor, y, color565, fsize, width, height);
+        //LOG_DEBUG(String(str[i]) + VAL(":") + VAL(x_cursor) + VAL(y) + VAL(width) + VAL(height));
+        space = draw_ascii(String(str[i]), x_cursor, y, color565, fsize, width, height, font);
         i++;
-    }
+    }  
 
     // 清空间距内容
     if (i + 1 < strlen(str)) {
-      dma_display->fillRect(x_cursor + width, y, space, height, 0); // dma_display->color565(125, 125, 230)
-      //LOG_DEBUG(VAL(x_cursor + width + 1) + VAL(x_cursor + width + space) + VAL(space) + VAL(height));
+      // 自定义字体坐标变化，不兼容
+      if (font == NULL) {
+        dma_display->fillRect(x_cursor + width, y, space, height, 0); // dma_display->color565(125, 125, 230)
+        //LOG_DEBUG(VAL(x_cursor + width + 1) + VAL(x_cursor + width + space) + VAL(space) + VAL(height));
+      }
     }
 
     //LOG_DEBUG(" x_cursor:" + String(x_cursor) + " "  + String(s_x) + " "  + String(s_y) + " "  + String(space));

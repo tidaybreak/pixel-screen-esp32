@@ -104,7 +104,7 @@ String secondsToTimeFormat(unsigned long totalSeconds) {
   return timeString;
 }
 
-static void setMatrixTime() {
+static String setMatrixTime() {
   String timeString = "";
   String AmPmString = "";
   
@@ -126,7 +126,7 @@ static void setMatrixTime() {
   tetris_sec.setNumbers(secString, false);
 
   finishedAnimating = false;
-
+  return secString;
 }
 
 static bool isinit = false;
@@ -173,8 +173,9 @@ bool element_countdown_loop() {
   }
 
   unsigned long now = millis();
+  String secString;
   if (now > oneSecondLoopDue) {
-    setMatrixTime();
+    secString = setMatrixTime();
     Serial.println(String(secs_));
 
     showColon = !showColon;
@@ -184,7 +185,8 @@ bool element_countdown_loop() {
 
   now = millis();
   if (now >= animationDue) {
-    animationHandler();
+    text("23:" + secString, 1, 15, 40, "FFFFFF", 1, "FreeSans18pt7b");
+    //animationHandler();
     animationDue = now + animationDelay;
   }
   return false;

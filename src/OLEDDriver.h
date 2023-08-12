@@ -29,7 +29,7 @@ void showTQ(int c, int x, int y, boolean isnight);
 void initOLED(int panel_chain, int light);
 MatrixPanel_I2S_DMA *get_oled();
 void clearOLED();
-void text(const String &content, bool clear=false, int x=-1, int y=-1, const char *color=NULL, int fsize=1);
+void text(const String &content, bool clear=false, int x=-1, int y=-1, const char *color=NULL, int fsize=1, const char *font=NULL);
 void fill_rect(int16_t x, int16_t y, int16_t w, int16_t h, const char *color=NULL);
 
 void setBrightness(int dianya, int light);
