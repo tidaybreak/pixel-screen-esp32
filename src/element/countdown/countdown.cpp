@@ -118,15 +118,21 @@ static String setMatrixTime() {
     lastDisplayedTime = timeString;
     tetris.setTime(timeString, false);
   }
+  
+  String minString = String(int(secs_ / 60));
+  if (minString.length() == 1) {
+    minString = "0" + minString;
+  }
 
   String secString = String(secs_ % 60);
   if (secString.length() == 1) {
     secString = "0" + secString;
   }
-  tetris_sec.setNumbers(secString, false);
+
+  //tetris_sec.setNumbers(secString, false);
 
   finishedAnimating = false;
-  return secString;
+  return minString + " " + secString;
 }
 
 static bool isinit = false;
@@ -163,8 +169,15 @@ void element_countdown_setup(int secs) {
 }
 
 bool element_countdown_loop() {
+  int point_x = 32;
+  int point_y = 10 + y_offset - (TETRIS_Y_DROP_DEFAULT * tetris.scale);
+
   secs_ = init_secs_ - (now() - init_timestamp_);
   if (secs_ <= 0) {
+    text("00 00", 1, 15, 45, "FFFFFF", 1, "FreeSans18pt7b", false);
+    tetris_sec.drawColon(point_x, point_y, tetris.tetrisWHITE);
+    text("时间到啦", 0, 35, 2, "FFA500", 1, NULL, true);    
+    delay(10000);
     return true;
   }
   
@@ -173,19 +186,23 @@ bool element_countdown_loop() {
   }
 
   unsigned long now = millis();
-  String secString;
   if (now > oneSecondLoopDue) {
-    secString = setMatrixTime();
+    String secString = setMatrixTime();
+    text(secString, 1, 15, 45, "FFFFFF", 1, "FreeSans18pt7b", false);
+
+    uint16_t colour =  showColon ? tetris.tetrisWHITE : tetris.tetrisBLACK;
+    tetris_sec.drawColon(point_x, point_y, colour);
+    showColon = !showColon;
+
+    text("倒计时", 0, 45, 2, "FFA500", 1, NULL, true);
     Serial.println(String(secs_));
 
-    showColon = !showColon;
 
     oneSecondLoopDue = now + 1000;
   }
 
   now = millis();
   if (now >= animationDue) {
-    text("23:" + secString, 1, 15, 40, "FFFFFF", 1, "FreeSans18pt7b");
     //animationHandler();
     animationDue = now + animationDelay;
   }

@@ -540,30 +540,30 @@ int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize,
   int y = 0;
   for (int i = 0; i < fsize; i += 2)
   {
-    Serial.print(String(i) + ":"); 
+    //Serial.print(String(i) + ":"); 
 
     for (int s = 7; s >= 0; s--) {
       if (buffs[i] & (0x01 << s))
       {
         fillTab(7 - s + xx, y + yy, color);
-        Serial.print("*");
+        //Serial.print("*");
       } else {
         fillTab(7 - s + xx, y + yy, 0);
-        Serial.print("."); 
+        //Serial.print("."); 
       }
     }
     for (int s = 7; s >= x_fill; s--) {
       if (buffs[i+1] & (0x01 << s))
       {
         fillTab(15 - s + xx, y + yy, color);
-        Serial.print("*");
+        //Serial.print("*");
       } else {
         fillTab(15 - s + xx, y + yy, 0);
-        Serial.print("."); 
+        //Serial.print("."); 
       }
     }
     y += 1;
-    Serial.println(""); 
+    //Serial.println(""); 
   }
 
   fillScreenTab(xx, yy, xx + width, yy + height);
@@ -616,7 +616,7 @@ int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &wi
   return space;
 }
 
-void text(const String &content, bool clear, int x, int y, const char *color, int fsize, const char *font)
+void text(const String &content, bool clear, int x, int y, const char *color, int fsize, const char *font, bool flip)
 {
   /*
 
@@ -693,7 +693,10 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
       break;
     }
   }
-  dma_display->flipDMABuffer();
+  
+  if (flip) {
+    dma_display->flipDMABuffer();
+  }
 
 }
 
