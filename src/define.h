@@ -3,8 +3,9 @@
 
 
 #include <pgmspace.h>
-#include <TimeLib.h>
-#include "time.h"
+// #include <TimeLib.h>
+// #include "time.h"
+#include <ezTime.h>
 
 #define TFT_BLACK       0x0      /*   0,   0,   0 */
 #define TFT_NAVY        0x000F      /*   0,   0, 128 */

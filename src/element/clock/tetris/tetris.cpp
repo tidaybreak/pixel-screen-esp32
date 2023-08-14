@@ -66,7 +66,8 @@
 // ------- Replace the following! ------
 // -------------------------------------
 
-
+#include "MyFont.h"
+#include "api.h"
 
 // Set a timezone using the following list
 // https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
@@ -81,6 +82,13 @@ const int panel_chain = 2;  // Total number of panels chained one to another.
 
 int X_OFFSET = 15;
 #define MYTIMEZONE "Asia/Shanghai"
+
+String info_url = "";
+String wd_val = "00";   // 温度
+String sd_val = "00";   // 湿度
+String power_val = "00";  // 功率
+String kd_val = "0";  // 快递数量 
+
 
 // -------------------------------------
 // -------   Clock Config   ------
@@ -103,7 +111,7 @@ portMUX_TYPE timerMux = portMUX_INITIALIZER_UNLOCKED;
 hw_timer_t * animationTimer = NULL;
 
 unsigned long animationDue = 0;
-unsigned long animationDelay = 0; // Smaller number == faster
+unsigned long animationDelay = 1000; // Smaller number == faster
 
 static uint16_t myBLACK = dma_display->color565(0, 0, 0);
 
@@ -133,9 +141,36 @@ void animationHandler()
  
   if (!finishedAnimating) {
     // 先清楚秒方块痕迹
-    while(!tetris_sec.drawNumbers(70 + X_OFFSET, 10 + y_offset)) {}
+    while(!tetris_sec.drawNumbers(70 + X_OFFSET, 10 + y_offset, false, false)) {}
+    while(!tetris.drawNumbers(2 + X_OFFSET, 10 + y_offset, false, false)) {}
 
     dma_display->fillScreen(myBLACK);
+
+    text(myTZ.dateTime("Y:m:d"), 0, 1, 1, "ADFF2F", 1, NULL, false);
+
+    // showTQ(100, 1, 1, false); // 太阳 晴
+
+
+    int bottom_x = 30;
+    text(power_val, 0, bottom_x + (6*4 - power_val.length()*6), 55, "FFFFFF", 1, NULL, false);
+    bottom_x += 6 * 4;
+    drawColorBit(bottom_x, 54, icon_power, 5, 10, false);
+
+    bottom_x += 6 + 4;
+    text(kd_val, 0, bottom_x, 55, "FFFFFF", 1, NULL, false);
+    bottom_x += 6;
+    drawColorBit(bottom_x, 54, icon_box, 5, 10, false);
+
+    bottom_x += 6 + 4;
+    text(wd_val, 0, bottom_x, 55, "FFFFFF", 1, NULL, false);
+    bottom_x += 13;
+    drawColorBit(bottom_x, 54, tianqiwd, 5, 10, false);
+
+    bottom_x += 6 + 4;
+    text(sd_val, 0, bottom_x, 55, "FFFFFF", 1, NULL, false);
+    bottom_x += 13;
+    drawColorBit(bottom_x, 54, tianqisd, 5, 10, false);
+
 
     // if (displayIntro) {
     //   finishedAnimating = tetris.drawText(1 + X_OFFSET, 5 + y_offset);
@@ -225,7 +260,7 @@ void setMatrixTime() {
     //Get if its "AM" or "PM"
     AmPmString = myTZ.dateTime("A");
     if (lastDisplayedAmPm != AmPmString) {
-      Serial.println(AmPmString);
+      //Serial.println(AmPmString);
       lastDisplayedAmPm = AmPmString;
       // Second character is always "M"
       // so need to parse it out
@@ -246,7 +281,7 @@ void setMatrixTime() {
 
   // Only update Time if its different
   if (lastDisplayedTime != timeString) {
-    Serial.println(timeString);
+    //Serial.println(timeString);
     lastDisplayedTime = timeString;
     tetris.setTime(timeString, forceRefresh);
 
@@ -284,7 +319,18 @@ void handleColonAfterAnimation() {
 }
 
 static bool isinit = false;
-void element_clock_tetris_setup() {
+void element_clock_tetris_setup(JsonObject &node) {
+  Serial.println("clock init!");
+
+  info_url = node["url"].as<String>();
+  String payload = http_get(info_url);
+  Serial.println(payload);
+
+  wd_val = node["wd"].as<String>();
+  sd_val = node["sd"].as<String>();
+  kd_val = node["kd"].as<String>();
+  power_val = node["power"].as<String>();
+
   if (isinit) {
     return ;
   }
@@ -309,6 +355,12 @@ void element_clock_tetris_setup() {
   tetris_sec.display = dma_display; // Main clock
   tetris_m.display = dma_display; // The "M" of AM/PM
   tetris_pa.display = dma_display; // The "P" or "A" of AM/PM
+
+  uint16_t tetrisBLACK = 0xFFFF;
+  for (uint16_t i = 0; i< 9; ++i) {
+    tetris.tetrisColors[i] = tetrisBLACK; 
+    tetris_sec.tetrisColors[i] = tetrisBLACK; 
+  }
 
   // // "connecting"
   // drawConnecting(45, -6 + y_offset);
@@ -349,7 +401,6 @@ void element_clock_tetris_setup() {
 }
 
 void element_clock_tetris_loop() {
-  element_clock_tetris_setup();
 
   if (dma_display == nullptr) {
     return ;

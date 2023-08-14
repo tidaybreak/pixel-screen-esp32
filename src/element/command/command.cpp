@@ -62,7 +62,7 @@ bool element_command_loop() {
     token = strtok(NULL, ",");
 
     Serial.println(String("text:") + command + " " + args + " " + String(x) + String(y) + String(clear) + color + String(fsize));
-    text(command, clear, x, y, color.c_str(), fsize, font.c_str());
+    text(command, clear, x, y, color.c_str(), fsize, font.c_str(), true);
   }
   do_action = true;
 

@@ -66,13 +66,13 @@ float sensor_Read()
 void refreshData(void *parameter)
 {
   // 每天0点更新网络时间
-  DATATIME * t = (DATATIME *) parameter;
-  if (t->minu == 0 && t->sec == 0)
-  {
-    setSyncProvider(getNtpTime);
-    t->GetTime();
-    getNongli(&clockinfo, timenow);
-  }
+  // DATATIME * t = (DATATIME *) parameter;
+  // if (t->minu == 0 && t->sec == 0)
+  // {
+  //   setSyncProvider(getNtpTime);
+  //   t->GetTime();
+  //   getNongli(&clockinfo, timenow);
+  // }
   //
 
   vTaskDelete(NULL);
@@ -117,11 +117,6 @@ void setup()
   {
     Serial.print("****");
   }
-  //text("SPIFFS OK!");
-
-
-  //setup_ConfigPortal();
-
 }
 
 void loop()
@@ -145,8 +140,10 @@ void loop()
     delay(350);
     return;
   } else if (wifi_status == 3) {
+    get_system_info();
+
     startServer();
-    setSyncProvider(getNtpTime);
+    //setSyncProvider(getNtpTime);
     timenow.GetTime();
   }
 
@@ -161,8 +158,7 @@ void loop()
       curr_idx = i;
       String element = node["element"].as<String>();
       if (element == "clock_teris") {
-          int secs = node["secs"].as<int>();
-          element_clock_tetris_setup();
+          element_clock_tetris_setup(node);
           break;
       } else if (element == "countdown") {
           int secs = node["secs"].as<int>();
@@ -180,7 +176,7 @@ void loop()
       //Serial.println(element);
       i++;
     }
-  } 
+  }
 
   if (curr_idx == -1) {
     delay(100);
@@ -223,7 +219,7 @@ void loop()
 
   if (timenow.minu == 0 && timenow.sec == 0)
   {
-    setSyncProvider(getNtpTime);
+    //setSyncProvider(getNtpTime);
     timenow.GetTime();
     getNongli(&clockinfo, timenow);
   }

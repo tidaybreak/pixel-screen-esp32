@@ -36,8 +36,7 @@
 // MatrixPanel_I2S_DMA dma_display;
 MatrixPanel_I2S_DMA *dma_display = nullptr;
 // 定义显示数组
-uint16_t ledtab[128][64];
-uint16_t ledtab_old[64][64];
+//uint16_t ledtab[128][64];
 
 int screen_num = 0;       // 显示控制，让元素在两个屏幕上跳动
 uint16_t colorl = 0xff00; // 滚动条
@@ -105,7 +104,7 @@ void cleanTab()
   {
     for (int j = 0; j < 64; j++)
     {
-      ledtab[i][j] = 0x0000;
+      //ledtab[i][j] = 0x0000;
     }
   }
 }
@@ -113,14 +112,26 @@ void fillTab(int x, int y, uint16_t color, boolean isnight)
 {
   if (!isnight)
   {
-    ledtab[x][y] = color;
+    dma_display->drawPixel(x, y, color);
+    //ledtab[x][y] = color;
   }
   else
   {
-    ledtab[x][y] = 0x8800;
+    //ledtab[x][y] = 0x8800;
   }
 }
 
+void fillScreenTab(int32_t x, int32_t y, int32_t width, int height)
+{
+  //LOG_DEBUG("fillScreenTab:" + String(x) + " " + String(y) + " " + String(x_max));
+  // for (int i = x; i < width; i++)
+  // {
+  //   for (int j = y; j < height; j++)
+  //   {
+  //       //dma_display->drawPixel(i + screen_num, j, ledtab[i][j]);
+  //   }
+  // }
+}
 
 void draw_gb2312_24(int xx, int yy, unsigned char *names, uint32_t color, boolean isnight)
 {
@@ -269,7 +280,6 @@ int drawHanziS(int32_t x, int32_t y, const char str[], uint32_t color, boolean i
   }
   return x0;
 }
-
 void fillCircle(int x, int y, int r, int color, boolean isnight)
 {
   for (int i = x - r; i < x + r; i++)
@@ -283,23 +293,7 @@ void fillCircle(int x, int y, int r, int color, boolean isnight)
     }
   }
 }
-void drawBit(int x, int y, const uint8_t *bitmap, int width, int height, uint16_t color, boolean isnight)
-{
 
-  int32_t i, j, byteWidth = (width + 7) / 8;
-
-  for (j = 0; j < height; j++)
-  {
-    for (i = 0; i < width; i++)
-    {
-      if (pgm_read_byte(bitmap + j * byteWidth + i / 8) & (128 >> (i & 7)))
-      {
-        // dma_display->drawPixel(x + i, y + j, color);
-        fillTab(x + i, y + j, color, isnight);
-      }
-    }
-  }
-}
 void drawLine(int x0, int y0, int x1, int sec, boolean isnight)
 {
   for (int i = x0; i < x1; i++)
@@ -351,26 +345,7 @@ void drawBit2(int x, int y, const uint8_t *bitmap, int width, int height, uint16
     first = 0;
   }
 }
-void drawSmBit(int x, int y, const uint8_t *bitmap, int width, int height, uint16_t color, boolean isnight)
-{
-  int32_t i, j;
-  unsigned char a[3];
-  unsigned char temp;
-  for (j = 0; j < height; j++)
-  {
-    temp = bitmap[j];
-    for (i = width; i > 0; i--)
-    {
-      a[i - 1] = temp & 0x01;
-      temp >>= 1;
-      if (a[i - 1] == 1)
-      {
-        // dma_display->drawPixel(x + i, y + j, color);
-        fillTab(x + i, y + j, color, isnight);
-      }
-    }
-  }
-}
+
 void display30Number(int c, int x, int y, uint16_t color, boolean isnight)
 {
   int hz_width;
@@ -420,22 +395,7 @@ void drawColorBit3(int x, int y, const uint16_t *bitmap, int width, int height)
     }
   }
 }
-void drawColorBit(int x, int y, const uint16_t *bitmap, int width, int height, boolean isnight)
-{
 
-  int32_t i, j, byteWidth = (width + 7) / 8;
-
-  for (j = 0; j < height; j++)
-  {
-    for (i = 0; i < width; i++)
-    {
-      if (bitmap[i + j * width] != 0)
-      {
-        fillTab(x + i, y + j, bitmap[i + j * width], isnight);
-      }
-    }
-  }
-}
 void drawColorBit2(int x, int y, const uint16_t *bitmap, int width, int height, boolean isnight)
 {
 
@@ -452,6 +412,7 @@ void drawColorBit2(int x, int y, const uint16_t *bitmap, int width, int height, 
     }
   }
 }
+// https://dev.qweather.com/docs/resource/icons/
 void showTQ(int c, int x, int y, boolean isnight)
 {
   int hz_width;
@@ -462,6 +423,8 @@ void showTQ(int c, int x, int y, boolean isnight)
       drawColorBit2(x, y, tq20[k].tq20_Id, 20, 20, isnight);
     }
   }
+  fillScreenTab(x, y, x + 20, y + 20);
+
 }
 
 bool hasChineseCharacter(const String& str) {
@@ -492,17 +455,6 @@ uint16_t color_to_color565(const char *color) {
 }
 
 
-void fillScreenTab(int32_t x, int32_t y, int32_t width, int height)
-{
-  //LOG_DEBUG("fillScreenTab:" + String(x) + " " + String(y) + " " + String(x_max));
-  for (int i = x; i < width; i++)
-  {
-    for (int j = y; j < height; j++)
-    {
-        dma_display->drawPixel(i + screen_num, j, ledtab[i][j]);
-    }
-  }
-}
 
 int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize, int &width, int &height)
 {
@@ -566,14 +518,14 @@ int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize,
     //Serial.println(""); 
   }
 
-  fillScreenTab(xx, yy, xx + width, yy + height);
+  //fillScreenTab(xx, yy, xx + width, yy + height);
   return space;
 
 }
 
 int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &width, int &height, const char *font)
 {
-  int space = 1; 
+  int space = 0; 
   // 1 is default 6x8, 2 is 12x16, 3 is 18x24, etc
   width = 6;
   height = 8;
@@ -670,13 +622,10 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
         i++;
     }  
 
-    // 清空间距内容
-    if (i + 1 < strlen(str)) {
-      // 自定义字体坐标变化，不兼容
-      if (font == NULL) {
+    // 清空间距内容 最后一个不需要、自定义字体坐标变化不需要，不兼容
+    if (space > 0 and i + 1 < strlen(str) and font == NULL) {
         dma_display->fillRect(x_cursor + width, y, space, height, 0); // dma_display->color565(125, 125, 230)
         //LOG_DEBUG(VAL(x_cursor + width + 1) + VAL(x_cursor + width + space) + VAL(space) + VAL(height));
-      }
     }
 
     //LOG_DEBUG(" x_cursor:" + String(x_cursor) + " "  + String(s_x) + " "  + String(s_y) + " "  + String(space));
@@ -693,7 +642,7 @@ void text(const String &content, bool clear, int x, int y, const char *color, in
       break;
     }
   }
-  
+
   if (flip) {
     dma_display->flipDMABuffer();
   }
@@ -737,11 +686,9 @@ void initOLED(int panel_chain, int light)
       _pins
   );
 
-  mxconfig.double_buff = true;
-
-  //mxconfig.gpio.e = 2;  
+  mxconfig.double_buff = true; // false 内存219204 -> 95936  true 内存219204 -> 27268
   mxconfig.clkphase = false;
-  mxconfig.driver = HUB75_I2S_CFG::FM6126A;
+  //mxconfig.driver = HUB75_I2S_CFG::FM6126A;
 
   // Display Setup 会影响jtag调试 Bus_Parallel16::init中以下逻辑
   // for(int i = 0; i < bus_width; i++) 
@@ -880,6 +827,7 @@ void drawChars(int32_t x, int32_t y, const char str[], uint32_t color, boolean i
     disSmallChar(str[i], x0, y, color, isnight);
     x0 += 4;
   }
+  //fillScreenTab(x, y, x + 3, y + 5);
 }
 void displayNumber2(int c, int x, int y, uint16_t color, boolean isnight)
 {
@@ -913,4 +861,64 @@ void displayNumbers2(int numbers, int x, int y, uint16_t color, boolean isnight)
     numbers = numbers / 10;
     count++; // count表示val是一个几位数
   }
+}
+
+void drawBit(int x, int y, const uint8_t *bitmap, int width, int height, uint16_t color, boolean isnight)
+{
+
+  int32_t i, j, byteWidth = (width + 7) / 8;
+
+  for (j = 0; j < height; j++)
+  {
+    for (i = 0; i < width; i++)
+    {
+      if (pgm_read_byte(bitmap + j * byteWidth + i / 8) & (128 >> (i & 7)))
+      {
+        // dma_display->drawPixel(x + i, y + j, color);
+        fillTab(x + i, y + j, color, isnight);
+      }
+    }
+  }
+  fillScreenTab(x, y, x + width, y + height);
+}
+
+void drawSmBit(int x, int y, const uint8_t *bitmap, int width, int height, uint16_t color, boolean isnight)
+{
+  int32_t i, j;
+  unsigned char a[3];
+  unsigned char temp;
+  for (j = 0; j < height; j++)
+  {
+    temp = bitmap[j];
+    for (i = width; i > 0; i--)
+    {
+      a[i - 1] = temp & 0x01;
+      temp >>= 1;
+      if (a[i - 1] == 1)
+      {
+        // dma_display->drawPixel(x + i, y + j, color);
+        fillTab(x + i, y + j, color, isnight);
+      }
+    }
+  }
+  fillScreenTab(x, y, x + width, y + height);
+}
+
+void drawColorBit(int x, int y, const uint16_t *bitmap, int width, int height, boolean isnight)
+{
+
+  int32_t i, j, byteWidth = (width + 7) / 8;
+
+  for (j = 0; j < height; j++)
+  {
+    for (i = 0; i < width; i++)
+    {
+      if (bitmap[i + j * width] != 0)
+      {
+        fillTab(x + i, y + j, bitmap[i + j * width], isnight);
+      }
+    }
+  }
+  fillScreenTab(x, y, x + width, y + height);
+
 }

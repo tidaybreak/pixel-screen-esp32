@@ -9,6 +9,8 @@ struct DATACLOCK;
 struct NIGHTCOLOR;
 struct WEATHER;
 
+String http_get(String &url);
+
 // 获取API里的纪念日
 void getBirth(DATACLOCK *cinfo, String &macAddr);
 

@@ -19,7 +19,7 @@ const char *userpass = "000000";
 bool is_running = false;
 
 /*-------- NTP code ----------*/
-const int NTP_PACKET_SIZE = 48;     // NTP time is in the first 48 bytes of message
+//const int NTP_PACKET_SIZE = 48;     // NTP time is in the first 48 bytes of message
 byte packetBuffer[NTP_PACKET_SIZE]; // buffer to hold incoming & outgoing packets
 File fsUploadFile;
 const char *ntpServerName = "time1.aliyun.com";
@@ -82,7 +82,7 @@ const char *serverIndex =
     "});"
     "});"
     "$(document).ready(function() {"
-    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"countdown\",\"secs\":10},{\"element\":\"command\",\"command\":\"command\",\"args\":\"1,-1,-1,FFFF00,1,FreeSans9pt7b\",\"delay\":10},{\"element\":\"clock_teris\",\"args\":\"val\"}]}';"
+    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"countdown\",\"secs\":10},{\"element\":\"command\",\"command\":\"command\",\"args\":\"1,-1,-1,FFFF00,1,FreeSans9pt7b\",\"delay\":10},{\"element\":\"clock_teris\",\"kd\":\"\",\"wd\":\"\",\"sd\":\"\",\"power\":\"\"}]}';"
     "var jsonData = JSON.parse(configStr);"
     "var formattedData = JSON.stringify(jsonData, null, 2);"
     "$('#config').val(formattedData);"

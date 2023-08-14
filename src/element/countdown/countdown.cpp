@@ -176,7 +176,7 @@ bool element_countdown_loop() {
   if (secs_ <= 0) {
     text("00 00", 1, 15, 45, "FFFFFF", 1, "FreeSans18pt7b", false);
     tetris_sec.drawColon(point_x, point_y, tetris.tetrisWHITE);
-    text("时间到啦", 0, 35, 2, "FFA500", 1, NULL, true);    
+    text("时间到啦", 0, 35, 2, "ADFF2F", 1, NULL, true);    
     delay(10000);
     return true;
   }
@@ -194,7 +194,7 @@ bool element_countdown_loop() {
     tetris_sec.drawColon(point_x, point_y, colour);
     showColon = !showColon;
 
-    text("倒计时", 0, 45, 2, "FFA500", 1, NULL, true);
+    text("倒计时", 0, 45, 2, "87CEEB", 1, NULL, true);
     Serial.println(String(secs_));
 
 

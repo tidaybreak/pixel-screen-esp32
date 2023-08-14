@@ -197,7 +197,7 @@ void getWeather(DATACLOCK *cinfo, CONF &conf) {
   HTTPClient http;
 
   // We now create a URI for the request
-  if(false){
+  if(true){
   String url = "https://devapi.heweather.net/v7/weather/now?key=&location=&unit=m&lang=zh&gzip=n";;
   http.begin(url.c_str());
   String payload ;
@@ -386,3 +386,26 @@ void get3DayWeather(WEATHER *winfo, NIGHTCOLOR &nightcolor, CONF &conf) {
   }
 
 }
+
+
+// 获取附加信息
+String http_get(String &url) {
+  String payload ;
+  if (url.length() <= 0) {
+    return payload;
+  }
+  HTTPClient http;
+  // We now create a URI for the request
+  http.begin(url.c_str());
+  //发起http get请求
+  int httpResponseCode = http.GET();
+  //Serial.println(String(conf.zx_key) + String("|") + String(conf.city) + String(url) + String(" get3DayWeather HTTP Response code:") + String(httpResponseCode));
+
+  if (httpResponseCode == 200) {
+    payload = http.getString();
+  }
+  http.end();
+  return payload;
+
+}
+
