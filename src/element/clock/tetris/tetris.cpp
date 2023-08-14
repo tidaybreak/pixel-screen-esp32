@@ -87,7 +87,8 @@ String info_url = "";
 String wd_val = "00";   // 温度
 String sd_val = "00";   // 湿度
 String power_val = "00";  // 功率
-String kd_val = "0";  // 快递数量 
+String kd_val = "0";  // 快递数量
+int iconDay = 0;
 
 
 // -------------------------------------
@@ -148,7 +149,7 @@ void animationHandler()
 
     text(myTZ.dateTime("Y:m:d"), 0, 1, 1, "ADFF2F", 1, NULL, false);
 
-    // showTQ(100, 1, 1, false); // 太阳 晴
+    showTQ(iconDay, 128 - 20, 0, false); // 太阳 晴
 
 
     int bottom_x = 30;
@@ -242,62 +243,6 @@ void drawConnecting(int x = 0, int y = 0)
 }
 
 
-void setMatrixTime() {
-  String timeString = "";
-  String AmPmString = "";
-  if (twelveHourFormat) {
-    // Get the time in format "1:15" or 11:15 (12 hour, no leading 0)
-    // Check the EZTime Github page for info on
-    // time formatting
-    timeString = myTZ.dateTime("g:i:h");
-
-    //If the length is only 4, pad it with
-    // a space at the beginning
-    if (timeString.length() == 4) {
-      timeString = " " + timeString;
-    }
-
-    //Get if its "AM" or "PM"
-    AmPmString = myTZ.dateTime("A");
-    if (lastDisplayedAmPm != AmPmString) {
-      //Serial.println(AmPmString);
-      lastDisplayedAmPm = AmPmString;
-      // Second character is always "M"
-      // so need to parse it out
-      tetris_m.setText("M", forceRefresh);
-
-      // Parse out first letter of String
-      tetris_pa.setText(AmPmString.substring(0, 1), forceRefresh);
-    }
-  } else {
-    // Get time in format "01:15" or "22:15"(24 hour with leading 0)
-    timeString = myTZ.dateTime("H:i");
-    String hourString = myTZ.dateTime("H");
-    int h = atoi(hourString.c_str());
-    X_OFFSET = (h > 9 and h < 20) ? 11 : 15; 
-    //Serial.println(String(h) + " " + String(X_OFFSET));
-  }
-  //Serial.println(timeString);
-
-  // Only update Time if its different
-  if (lastDisplayedTime != timeString) {
-    //Serial.println(timeString);
-    lastDisplayedTime = timeString;
-    tetris.setTime(timeString, forceRefresh);
-
-    // Must set this to false so animation knows
-    // to start again
-  }
-
-  String secString = myTZ.dateTime("s");
-  if (secString.length() == 1) {
-    secString = "0" + secString;
-  }
-  tetris_sec.setNumbers(secString, forceRefresh);
-
-  finishedAnimating = false;
-
-}
 
 void handleColonAfterAnimation() {
 
@@ -318,18 +263,70 @@ void handleColonAfterAnimation() {
   //dma_display->flipDMABuffer();  
 }
 
+void update_info() {
+  String payload = http_get(info_url);
+  //Serial.println(payload);
+  if (payload.length() <= 0) {
+    return;
+  }
+  
+  StaticJsonDocument<3072> doc;
+  DeserializationError error = deserializeJson(doc, payload);
+  if (error) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  } else {
+    power_val = doc["power"].as<String>(); 
+    wd_val = doc["wd"].as<String>(); 
+    sd_val = doc["sd"].as<String>();
+    kd_val = doc["kd"].as<String>();
+
+    iconDay = doc["weather"]["daily"][0]["iconDay"].as<int>(); 
+    LOG_DEBUG(power_val);
+  }
+}
+
+
+void setMatrixTime() {
+  String timeString = "";
+  String AmPmString = "";
+
+  // Get time in format "01:15" or "22:15"(24 hour with leading 0)
+  timeString = myTZ.dateTime("H:i");
+  String hourString = myTZ.dateTime("H");
+  int h = atoi(hourString.c_str());
+  X_OFFSET = (h > 9 and h < 20) ? 11 : 15; 
+  //Serial.println(String(h) + " " + String(X_OFFSET));
+  
+  //Serial.println(timeString);
+
+  // Only update Time if its different
+  if (lastDisplayedTime != timeString) {
+    //Serial.println(timeString);
+    lastDisplayedTime = timeString;
+    tetris.setTime(timeString, forceRefresh);
+    update_info();
+    // Must set this to false so animation knows
+    // to start again
+  }
+
+  String secString = myTZ.dateTime("s");
+  if (secString.length() == 1) {
+    secString = "0" + secString;
+  }
+  tetris_sec.setNumbers(secString, forceRefresh);
+
+  finishedAnimating = false;
+
+}
+
 static bool isinit = false;
 void element_clock_tetris_setup(JsonObject &node) {
   Serial.println("clock init!");
 
   info_url = node["url"].as<String>();
-  String payload = http_get(info_url);
-  Serial.println(payload);
-
-  wd_val = node["wd"].as<String>();
-  sd_val = node["sd"].as<String>();
-  kd_val = node["kd"].as<String>();
-  power_val = node["power"].as<String>();
+  update_info();
 
   if (isinit) {
     return ;
