@@ -83,12 +83,22 @@ const int panel_chain = 2;  // Total number of panels chained one to another.
 int X_OFFSET = 15;
 #define MYTIMEZONE "Asia/Shanghai"
 
+bool car_online = false;
+String car_dis = "";
 String info_url = "";
 String wd_val = "00";   // 温度
 String sd_val = "00";   // 湿度
 String power_val = "00";  // 功率
 String kd_val = "0";  // 快递数量
-int iconDay = 0;
+
+int wnow_icon = 0;
+String wnow_temp = "";
+String wnow_text = "";
+int w3d_d1_icon = 0;
+String w3d_d1_text = "";
+String w3d_d1_tempMin = "";
+String w3d_d1_tempMax = "";
+
 
 
 // -------------------------------------
@@ -137,111 +147,76 @@ const int y_offset = panelResY / 2;
 // This method is for controlling the tetris library draw calls
 void animationHandler()
 {
-  // Not clearing the display and redrawing it when you
-  // dont need to improves how the refresh rate appears
- 
-  if (!finishedAnimating) {
-    // 先清楚秒方块痕迹
-    while(!tetris_sec.drawNumbers(70 + X_OFFSET, 10 + y_offset, false, false)) {}
-    while(!tetris.drawNumbers(2 + X_OFFSET, 10 + y_offset, false, false)) {}
+  int offset = 0;
 
-    dma_display->fillScreen(myBLACK);
+  // 先清楚秒方块痕迹
+  while(!tetris_sec.drawNumbers(70 + X_OFFSET, 10 + y_offset, false, false)) {}
+  while(!tetris.drawNumbers(2 + X_OFFSET, 10 + y_offset, false, false)) {}
 
-    text(myTZ.dateTime("Y:m:d"), 0, 1, 1, "ADFF2F", 1, NULL, false);
+  dma_display->fillScreen(myBLACK);
 
-    showTQ(iconDay, 128 - 20, 0, false); // 太阳 晴
-
-
-    int bottom_x = 30;
-    text(power_val, 0, bottom_x + (6*4 - power_val.length()*6), 55, "FFFFFF", 1, NULL, false);
-    bottom_x += 6 * 4;
-    drawColorBit(bottom_x, 54, icon_power, 5, 10, false);
-
-    bottom_x += 6 + 4;
-    text(kd_val, 0, bottom_x, 55, "FFFFFF", 1, NULL, false);
-    bottom_x += 6;
-    drawColorBit(bottom_x, 54, icon_box, 5, 10, false);
-
-    bottom_x += 6 + 4;
-    text(wd_val, 0, bottom_x, 55, "FFFFFF", 1, NULL, false);
-    bottom_x += 13;
-    drawColorBit(bottom_x, 54, tianqiwd, 5, 10, false);
-
-    bottom_x += 6 + 4;
-    text(sd_val, 0, bottom_x, 55, "FFFFFF", 1, NULL, false);
-    bottom_x += 13;
-    drawColorBit(bottom_x, 54, tianqisd, 5, 10, false);
-
-
-    // if (displayIntro) {
-    //   finishedAnimating = tetris.drawText(1 + X_OFFSET, 5 + y_offset);
-    // } else {
-      if (twelveHourFormat) {
-        // Place holders for checking are any of the tetris objects
-        // currently still animating.
-        bool tetris1Done = false;
-        bool tetris_mDone = false;
-        bool tetris_paDone = false;
-
-        tetris1Done = tetris.drawNumbers(-6 + X_OFFSET, 10 + y_offset, showColon);
-        tetris_mDone = tetris_m.drawText(56 + X_OFFSET, 9 + y_offset);
-
-        // Only draw the top letter once the bottom letter is finished.
-        if (tetris_mDone) {
-          tetris_paDone = tetris_pa.drawText(56 + X_OFFSET, -1 + y_offset);
-        }
-
-        finishedAnimating = tetris1Done && tetris_mDone && tetris_paDone;
-
-      } else {
-        finishedAnimating = tetris.drawNumbers(2 + X_OFFSET, 10 + y_offset, showColon);
-      }
-
-
-    uint16_t colour =  showColon ? tetris.tetrisWHITE : tetris.tetrisBLACK;
-    int y = 10 + y_offset - (TETRIS_Y_DROP_DEFAULT * tetris.scale);
-    int x = X_OFFSET + 16 * 2 + 2 + 2;
-    tetris_sec.drawColon(x, y, colour);
-
-    tetris_sec.drawNumbers(70 + X_OFFSET, 10 + y_offset);
-
-    dma_display->flipDMABuffer();
-
+  // 天气
+  offset = -1;
+  showTQ(wnow_icon, 0, 0, false);
+  text(wnow_temp, 0, 20 + offset, 3, "808080", 2, NULL, false); // myTZ.dateTime("d")
+  drawColorBit(42 + offset, 1, wd_unit, 3, 3, 0);
+  text(wnow_text, 0, 45 + offset, 4, "808080", 1, NULL, false); // myTZ.dateTime("d")
+  if (strlen(w3d_d1_text.c_str()) == 1) {
+    offset += 12;
   }
-}
+  showTQ(w3d_d1_icon, 70 + offset, 0, false);
+  text(w3d_d1_tempMax, 0, 90 + offset, 1, "808080", 1, NULL, false); // myTZ.dateTime("d")
+  drawColorBit(101 + offset, 0, wd_unit, 3, 3, 0);
+  text(w3d_d1_tempMin, 0, 90 + offset, 10, "808080", 1, NULL, false); // myTZ.dateTime("d")
+  drawColorBit(101 + offset, 8, wd_unit, 3, 3, 0);
+  text(w3d_d1_text, 0, 104 + offset, 4, "808080", 1, NULL, false); // myTZ.dateTime("d")
 
-void drawIntro(int x = 0, int y = 0)
-{
-  dma_display->fillScreen(myBLACK);
-  tetris.drawChar("P", x, y, tetris.tetrisCYAN);
-  tetris.drawChar("o", x + 5, y, tetris.tetrisMAGENTA);
-  tetris.drawChar("w", x + 11, y, tetris.tetrisYELLOW);
-  tetris.drawChar("e", x + 17, y, tetris.tetrisGREEN);
-  tetris.drawChar("r", x + 22, y, tetris.tetrisBLUE);
-  tetris.drawChar("e", x + 27, y, tetris.tetrisRED);
-  tetris.drawChar("d", x + 32, y, tetris.tetrisWHITE);
-  tetris.drawChar(" ", x + 37, y, tetris.tetrisMAGENTA);
-  tetris.drawChar("b", x + 42, y, tetris.tetrisYELLOW);
-  tetris.drawChar("y", x + 47, y, tetris.tetrisGREEN);
-  //dma_display->flipDMABuffer();
-}
+  // 时间 m/d
+  //text(myTZ.dateTime("Y:m:d"), 0, 1, 1, "ADFF2F", 1, NULL, false);
+  if (myTZ.dateTime("n").length() == 1) {
+    text(myTZ.dateTime("n"), 0, 1, 23, "808080", 1, NULL, false);
+    //drawChars(1 + 3, 23, myTZ.dateTime("n").c_str(), 0xFFFF, false);  // myTZ.dateTime("n").c_str()
+  } else {
+    drawChars(1, 23, myTZ.dateTime("n").c_str(), 0xFFFF, false);  // myTZ.dateTime("n").c_str()
+  }
+  text(myTZ.dateTime("d"), 0, 5, 34, "808080", 1, NULL, false); // myTZ.dateTime("d")
+  drawColorBit(3, 26, line_slash, 10, 10, 0);
 
-void drawConnecting(int x = 0, int y = 0)
-{
-  dma_display->fillScreen(myBLACK);
-  tetris.drawChar("C", x, y, tetris.tetrisCYAN);
-  tetris.drawChar("o", x + 5, y, tetris.tetrisMAGENTA);
-  tetris.drawChar("n", x + 11, y, tetris.tetrisYELLOW);
-  tetris.drawChar("n", x + 17, y, tetris.tetrisGREEN);
-  tetris.drawChar("e", x + 22, y, tetris.tetrisBLUE);
-  tetris.drawChar("c", x + 27, y, tetris.tetrisRED);
-  tetris.drawChar("t", x + 32, y, tetris.tetrisWHITE);
-  tetris.drawChar("i", x + 37, y, tetris.tetrisMAGENTA);
-  tetris.drawChar("n", x + 42, y, tetris.tetrisYELLOW);
-  tetris.drawChar("g", x + 47, y, tetris.tetrisGREEN);
-  //dma_display->flipDMABuffer();
-}
+  // 时间 h:i:s
+  offset = 0;
+  finishedAnimating = tetris.drawNumbers(2 + X_OFFSET, 10 + y_offset + offset, showColon);
+  uint16_t colour =  showColon ? tetris.tetrisWHITE : tetris.tetrisBLACK;
+  int y = 10 + y_offset - (TETRIS_Y_DROP_DEFAULT * tetris.scale);
+  int x = X_OFFSET + 16 * 2 + 2 + 2;
+  tetris_sec.drawColon(x, y + offset, colour);
+  tetris_sec.drawNumbers(70 + X_OFFSET, 10 + y_offset + offset);
 
+
+  // 底部
+  int bottom_x = 8;
+  text(car_dis, 0, bottom_x, 55, car_online ? "FFFFFF" : "808080", 1,  NULL, false);
+  bottom_x += 6;
+  drawColorBit(bottom_x, 54, icon_car, 12, 10, car_online ? 0 : 0x8410);
+  bottom_x += 15;
+  text(power_val, 0, bottom_x + (6*4 - power_val.length()*6), 55, power_val.length() <= 3 ? "808080" : "FFFFFF", 1, NULL, false);
+  bottom_x += 6 * 4;
+  drawColorBit(bottom_x, 54, icon_power, 5, 10, power_val.length() <= 3 ? 0x8410 : 0);
+  bottom_x += 6 + 4;
+  text(kd_val, 0, bottom_x, 55, kd_val == "0" ? "808080" : "FFFFFF", 1, NULL, false);
+  bottom_x += 6;
+  drawColorBit(bottom_x, 54, icon_box, 5, 10, kd_val == "0" ? 0x8410 : 0);
+  bottom_x += 6 + 4;
+  text(wd_val, 0, bottom_x, 55, "808080", 1, NULL, 0);
+  bottom_x += 13;
+  drawColorBit(bottom_x, 54, tianqiwd, 5, 10, 0);
+  bottom_x += 6 + 4;
+  text(sd_val, 0, bottom_x, 55, "808080", 1, NULL, false);
+  bottom_x += 13;
+  drawColorBit(bottom_x, 54, tianqisd, 5, 10, 0);
+
+  dma_display->flipDMABuffer();
+
+}
 
 
 void handleColonAfterAnimation() {
@@ -270,7 +245,7 @@ void update_info() {
     return;
   }
   
-  StaticJsonDocument<3072> doc;
+  StaticJsonDocument<3272> doc;
   DeserializationError error = deserializeJson(doc, payload);
   if (error) {
     Serial.print(F("deserializeJson() failed: "));
@@ -281,9 +256,17 @@ void update_info() {
     wd_val = doc["wd"].as<String>(); 
     sd_val = doc["sd"].as<String>();
     kd_val = doc["kd"].as<String>();
+    car_dis = doc["car_distance"].as<String>();
+    car_online = doc["car"].as<String>() == "off" ? false : true;
 
-    iconDay = doc["weather"]["daily"][0]["iconDay"].as<int>(); 
-    LOG_DEBUG(power_val);
+    w3d_d1_icon = doc["weather"]["3d"]["daily"][0]["iconDay"].as<int>(); 
+    w3d_d1_text = doc["weather"]["3d"]["daily"][0]["textDay"].as<String>(); 
+    w3d_d1_tempMin = doc["weather"]["3d"]["daily"][0]["tempMin"].as<String>(); 
+    w3d_d1_tempMax = doc["weather"]["3d"]["daily"][0]["tempMax"].as<String>(); 
+    wnow_icon = doc["weather"]["now"]["now"]["icon"].as<int>();
+    wnow_temp = doc["weather"]["now"]["now"]["temp"].as<String>(); 
+    wnow_text = doc["weather"]["now"]["now"]["text"].as<String>();
+    //LOG_DEBUG(VAL(wnow_icon));
   }
 }
 

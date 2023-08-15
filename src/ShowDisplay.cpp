@@ -526,7 +526,7 @@ void showTime(DATATIME &t, CONF &conf, DATACLOCK &cinfo, WEATHER &winfo, NIGHTCO
   // 十分钟刷新天气
   showTQ(winfo.wea_code, 0, 17 + yy3, isnight);
   // 室外
-  drawColorBit(22, 17 + yy3, tianqiwd, 5, 10, isnight);
+  drawColorBit(22, 17 + yy3, tianqiwd, 5, 10, 0);
   drawChars(28, 22 + yy3, cinfo.wea_temp1, ncolor.color4, isnight);
 
   //LOG_DEBUG("节日长度：" + String(cinfo.jieri.length() + String(" temp:") + String(cinfo.wea_temp1)));
@@ -537,7 +537,7 @@ void showTime(DATATIME &t, CONF &conf, DATACLOCK &cinfo, WEATHER &winfo, NIGHTCO
   // 室内温度
   disSmallNumbers(cinfo.temperature + conf.temp_mod, 32, 16 + yy3, ncolor.color5, isnight);
   drawSmBit(36, 13 + yy3, wd, 3, 8, ncolor.color5, isnight);
-  drawColorBit(42, 17 + yy3, tianqisd, 5, 10, isnight);
+  drawColorBit(42, 17 + yy3, tianqisd, 5, 10, 0);
   disSmallNumbers(cinfo.wea_hm, 52, 22 + yy3, ncolor.color4, isnight);
   // 显示H
   drawSmBit(56, 19 + yy3, sd, 3, 8, ncolor.color4, isnight);

@@ -82,7 +82,7 @@ const char *serverIndex =
     "});"
     "});"
     "$(document).ready(function() {"
-    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"countdown\",\"secs\":10},{\"element\":\"command\",\"command\":\"command\",\"args\":\"1,-1,-1,FFFF00,1,FreeSans9pt7b\",\"delay\":10},{\"element\":\"clock_teris\",\"kd\":\"\",\"wd\":\"\",\"sd\":\"\",\"power\":\"\"}]}';"
+    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"countdown\",\"secs\":10},{\"element\":\"command\",\"command\":\"command\",\"args\":\"1,-1,-1,FFFF00,1,FreeSans9pt7b\",\"delay\":10},{\"element\":\"clock_teris\",\"url\":\"http://192.168.2.80/clock\"}]}';"
     "var jsonData = JSON.parse(configStr);"
     "var formattedData = JSON.stringify(jsonData, null, 2);"
     "$('#config').val(formattedData);"

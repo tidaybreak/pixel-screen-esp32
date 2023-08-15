@@ -22,7 +22,7 @@ void drawSmBit(int x, int y, const uint8_t *bitmap , int width, int height, uint
 void display30Number(int c, int x, int y, uint16_t color, boolean isnight);
 void display30Numbers(int numbers, int x, int y, uint16_t color, boolean isnight);
 void drawColorBit3(int x, int y, const uint16_t *bitmap , int width, int height, boolean isnight);
-void drawColorBit(int x, int y, const uint16_t *bitmap , int width, int height, boolean isnight);
+void drawColorBit(int x, int y, const uint16_t *bitmap , int width, int height, uint16_t color=0);
 void drawColorBit2(int x, int y, const uint16_t *bitmap , int width, int height, boolean isnight);
 void showTQ(int c, int x, int y, boolean isnight);
 

@@ -56,7 +56,12 @@ PROGMEM const FNT_SJ14 shuzi14[]{
 char s20[] = "20";
 PROGMEM const FNT_TQ20 tq20[] // 61
     {
-        {100, tianqi100, s20}, {101, tianqi101, s20}, {102, tianqi102, s20}, {103, tianqi103, s20}, {104, tianqi104, s20}, {150, tianqi150, s20}, {153, tianqi153, s20}, {154, tianqi154, s20}, {300, tianqi300, s20}, {301, tianqi301, s20}, {302, tianqi302, s20}, {303, tianqi303, s20}, {304, tianqi304, s20}, {305, tianqi305, s20}, {306, tianqi306, s20}, {307, tianqi307, s20}, {308, tianqi308, s20}, {309, tianqi309, s20}, {310, tianqi310, s20}, {311, tianqi311, s20}, {312, tianqi312, s20}, {313, tianqi313, s20}, {314, tianqi314, s20}, {315, tianqi315, s20}, {316, tianqi316, s20}, {317, tianqi317, s20}, {318, tianqi318, s20}, {350, tianqi350, s20}, {351, tianqi351, s20}, {399, tianqi399, s20}, {400, tianqi400, s20}, {401, tianqi401, s20}, {402, tianqi402, s20}, {403, tianqi403, s20}, {404, tianqi404, s20}, {405, tianqi405, s20}, {406, tianqi406, s20}, {407, tianqi407, s20}, {408, tianqi408, s20}, {409, tianqi409, s20}, {410, tianqi410, s20}, {456, tianqi456, s20}, {457, tianqi457, s20}, {499, tianqi499, s20}, {500, tianqi500, s20}, {501, tianqi501, s20}, {502, tianqi502, s20}, {503, tianqi503, s20}, {504, tianqi504, s20}, {507, tianqi507, s20}, {508, tianqi508, s20}, {509, tianqi509, s20}, {510, tianqi510, s20}, {511, tianqi511, s20}, {512, tianqi512, s20}, {513, tianqi513, s20}, {514, tianqi514, s20}, {515, tianqi515, s20}, {900, tianqi900, s20}, {901, tianqi901, s20}, {999, tianqi999, s20}};
+        {100, tianqi100, s20}, {101, tianqi101, s20}, {102, tianqi102, s20}, {103, tianqi103, s20}, {104, tianqi104, s20}, 
+        {150, tianqi150, s20}, {151, tianqi154, s20}, {152, tianqi153, s20}, {153, tianqi153, s20}, {154, tianqi154, s20}, 
+        {300, tianqi300, s20}, {301, tianqi301, s20}, {302, tianqi302, s20}, {303, tianqi303, s20}, {304, tianqi304, s20}, {305, tianqi305, s20}, {306, tianqi306, s20}, {307, tianqi307, s20}, {308, tianqi308, s20}, {309, tianqi309, s20}, {310, tianqi310, s20}, {311, tianqi311, s20}, {312, tianqi312, s20}, {313, tianqi313, s20}, {314, tianqi314, s20}, {315, tianqi315, s20}, {316, tianqi316, s20}, {317, tianqi317, s20}, {318, tianqi318, s20}, 
+        {350, tianqi350, s20}, {351, tianqi351, s20}, 
+        {399, tianqi399, s20}, {400, tianqi400, s20}, {401, tianqi401, s20}, {402, tianqi402, s20}, {403, tianqi403, s20}, {404, tianqi404, s20}, {405, tianqi405, s20}, {406, tianqi406, s20}, {407, tianqi407, s20}, {408, tianqi408, s20}, {409, tianqi409, s20}, {410, tianqi410, s20}, 
+        {456, tianqi456, s20}, {457, tianqi457, s20}, {499, tianqi499, s20}, {500, tianqi500, s20}, {501, tianqi501, s20}, {502, tianqi502, s20}, {503, tianqi503, s20}, {504, tianqi504, s20}, {507, tianqi507, s20}, {508, tianqi508, s20}, {509, tianqi509, s20}, {510, tianqi510, s20}, {511, tianqi511, s20}, {512, tianqi512, s20}, {513, tianqi513, s20}, {514, tianqi514, s20}, {515, tianqi515, s20}, {900, tianqi900, s20}, {901, tianqi901, s20}, {999, tianqi999, s20}};
 char s3[] = "3";
 PROGMEM const FNT_SMSZ smsz[]{
     {1, smsj_1, s3}, {2, smsj_2, s3}, {3, smsj_3, s3}, {4, smsj_4, s3}, {5, smsj_5, s3}, {6, smsj_6, s3}, {7, smsj_7, s3}, {8, smsj_8, s3}, {9, smsj_9, s3}, {0, smsj_0, s3}};
@@ -461,7 +466,7 @@ int draw_gb2312(int xx, int yy, unsigned char *names, uint32_t color, int fsize,
   int x_fill = 0; // x第二个8点数量
   int space = 1; 
   if (fsize == 1) {
-    space = 2;
+    space = 0;
     width = 12;
     height = 12;
     fsize = 24;
@@ -571,6 +576,7 @@ int draw_ascii(String words, int x, int y, uint16_t color565, int fsize, int &wi
 void text(const String &content, bool clear, int x, int y, const char *color, int fsize, const char *font, bool flip)
 {
   /*
+  color=RGB888 https://www.barth-dev.de/online/rgb565-color-picker/
 
   */
   if (dma_display == nullptr) {
@@ -904,7 +910,7 @@ void drawSmBit(int x, int y, const uint8_t *bitmap, int width, int height, uint1
   fillScreenTab(x, y, x + width, y + height);
 }
 
-void drawColorBit(int x, int y, const uint16_t *bitmap, int width, int height, boolean isnight)
+void drawColorBit(int x, int y, const uint16_t *bitmap, int width, int height, uint16_t color)
 {
 
   int32_t i, j, byteWidth = (width + 7) / 8;
@@ -915,7 +921,7 @@ void drawColorBit(int x, int y, const uint16_t *bitmap, int width, int height, b
     {
       if (bitmap[i + j * width] != 0)
       {
-        fillTab(x + i, y + j, bitmap[i + j * width], isnight);
+        fillTab(x + i, y + j, color > 0 ? color : bitmap[i + j * width], false);
       }
     }
   }

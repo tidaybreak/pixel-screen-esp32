@@ -121,16 +121,6 @@ void setup()
 
 void loop()
 {
-  //loop_ConfigPortal();
-  // delay(350);
-  // return;
-
-  // const IPAddress remote_ip(192, 168, 3, 1);
-  // int ret = Ping.ping(remote_ip, 1);
-  // int avg_time_ms = Ping.averageTime();
-  // Serial.println(GetTimeStr() + String(" ret:") + String(ret) + String(" avg:") + String(avg_time_ms));
-  // //printf("ret: %d avg:%d \n", ret, avg_time_ms);
-  // return ;
 
   handleApiRequest();
 
@@ -143,8 +133,6 @@ void loop()
     get_system_info();
 
     startServer();
-    //setSyncProvider(getNtpTime);
-    timenow.GetTime();
   }
 
   // 读温度
@@ -207,86 +195,86 @@ void loop()
 
 
 
-  // 刷新亮度
-  if (sensor_Read() < 1.2)
-  {
-    nightcolor.nightMode();
-  }
-  else
-  {
-    nightcolor.set_isnight(false);
-  }
+  // // 刷新亮度
+  // if (sensor_Read() < 1.2)
+  // {
+  //   nightcolor.nightMode();
+  // }
+  // else
+  // {
+  //   nightcolor.set_isnight(false);
+  // }
 
-  if (timenow.minu == 0 && timenow.sec == 0)
-  {
-    //setSyncProvider(getNtpTime);
-    timenow.GetTime();
-    getNongli(&clockinfo, timenow);
-  }
-  if (timenow.minu % 2 == 0 && timenow.sec == 0 && timenow.minu % 10 != 0)
-  {
-    getBirth(&clockinfo, macAddr);
-  }
-  if (timenow.sec % 10 == 0)
-  {
-    if (getConf(&conf, macAddr)) {
-      //saveconfig(conf);
-    }
-  }
+  // if (timenow.minu == 0 && timenow.sec == 0)
+  // {
+  //   //setSyncProvider(getNtpTime);
+  //   timenow.GetTime();
+  //   getNongli(&clockinfo, timenow);
+  // }
+  // if (timenow.minu % 2 == 0 && timenow.sec == 0 && timenow.minu % 10 != 0)
+  // {
+  //   getBirth(&clockinfo, macAddr);
+  // }
+  // if (timenow.sec % 10 == 0)
+  // {
+  //   if (getConf(&conf, macAddr)) {
+  //     //saveconfig(conf);
+  //   }
+  // }
 
-  setBrightness(sensor_Read(), conf.light);
-  cleanTab();
+  // setBrightness(sensor_Read(), conf.light);
+  // cleanTab();
 
-  // 任务 每天0点更新网络时间
-  // xTaskCreate(
-  //     refreshData,
-  //     "refreshData",
-  //     100000,
-  //     &timenow,
-  //     1,
-  //     NULL);
-  if (false)
-  {
-    if (hour() > 5 && hour() < 23)
-    {
-      // 更新天气
-      if (timenow.minu % 10 == 0 && timenow.sec == 0 && timenow.minu != 0)
-      {
-        xTaskCreate(refreshTQ, "refreshTQ", 10000, NULL, 1, NULL);
-      }
-      timenow.GetTime();
-      showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
-      showTigger(timenow, conf, clockinfo, true);
-    }
-    else
-    { // 夜间只显示时间
-      if (false)
-      {
-        set_screen_num(0);
-        onlyShowTime(timenow, conf, nightcolor, true);
-      }
-      else
-      {
-        set_screen_num(0);
-        onlyShowTime2(timenow, conf, nightcolor, true);
-      }
+  // // 任务 每天0点更新网络时间
+  // // xTaskCreate(
+  // //     refreshData,
+  // //     "refreshData",
+  // //     100000,
+  // //     &timenow,
+  // //     1,
+  // //     NULL);
+  // if (false)
+  // {
+  //   if (hour() > 5 && hour() < 23)
+  //   {
+  //     // 更新天气
+  //     if (timenow.minu % 10 == 0 && timenow.sec == 0 && timenow.minu != 0)
+  //     {
+  //       xTaskCreate(refreshTQ, "refreshTQ", 10000, NULL, 1, NULL);
+  //     }
+  //     timenow.GetTime();
+  //     showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
+  //     showTigger(timenow, conf, clockinfo, true);
+  //   }
+  //   else
+  //   { // 夜间只显示时间
+  //     if (false)
+  //     {
+  //       set_screen_num(0);
+  //       onlyShowTime(timenow, conf, nightcolor, true);
+  //     }
+  //     else
+  //     {
+  //       set_screen_num(0);
+  //       onlyShowTime2(timenow, conf, nightcolor, true);
+  //     }
       
-      nightcolor.set_isnight(true);
+  //     nightcolor.set_isnight(true);
 
-    }
-  }
-  else
-  {
-    timenow.GetTime();
-    showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
-    showTigger(timenow, conf, clockinfo, true);
-  }
-  //fillScreenTab(conf.twopannel, timenow.minu, true);
+  //   }
+  // }
+  // else
+  // {
+  //   timenow.GetTime();
+  //   showTime(timenow, conf, clockinfo, weatherinfo, nightcolor, true);
+  //   showTigger(timenow, conf, clockinfo, true);
+  // }
+  // //fillScreenTab(conf.twopannel, timenow.minu, true);
   
 
-  if (netpage_wait < 52)
-  {
-    netpage_wait++;
-  }
-  delay(350);
+  // if (netpage_wait < 52)
+  // {
+  //   netpage_wait++;
+  // }
+  // delay(350);
 }
