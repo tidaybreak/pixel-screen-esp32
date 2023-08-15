@@ -194,7 +194,7 @@ void animationHandler()
 
   // 底部
   int bottom_x = 8;
-  text(car_dis, 0, bottom_x, 55, car_online ? "FFFFFF" : "808080", 1,  NULL, false);
+  text(car_dis, 0, bottom_x, 55 + 6 - car_dis.length()*6, car_online ? "FFFFFF" : "808080", 1,  NULL, false);
   bottom_x += 6;
   drawColorBit(bottom_x, 54, icon_car, 12, 10, car_online ? 0 : 0x8410);
   bottom_x += 15;
