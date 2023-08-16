@@ -172,18 +172,17 @@ void animationHandler()
   text(w3d_d1_text, 0, 104 + offset, 4, "808080", 1, NULL, false); // myTZ.dateTime("d")
 
   // 时间 m/d
+  offset = 4;
   //text(myTZ.dateTime("Y:m:d"), 0, 1, 1, "ADFF2F", 1, NULL, false);
   if (myTZ.dateTime("n").length() == 1) {
-    text(myTZ.dateTime("n"), 0, 1, 23, "808080", 1, NULL, false);
+    text(myTZ.dateTime("n"), 0, 1, 23 + offset, "808080", 1, NULL, false);
     //drawChars(1 + 3, 23, myTZ.dateTime("n").c_str(), 0xFFFF, false);  // myTZ.dateTime("n").c_str()
   } else {
-    drawChars(1, 23, myTZ.dateTime("n").c_str(), 0xFFFF, false);  // myTZ.dateTime("n").c_str()
+    drawChars(1, 23 + offset, myTZ.dateTime("n").c_str(), 0xFFFF, false);  // myTZ.dateTime("n").c_str()
   }
-  text(myTZ.dateTime("d"), 0, 5, 34, "808080", 1, NULL, false); // myTZ.dateTime("d")
-  drawColorBit(3, 26, line_slash, 10, 10, 0);
-
+  text(myTZ.dateTime("d"), 0, 5, 34 + offset, "808080", 1, NULL, false); // myTZ.dateTime("d")
+  drawColorBit(3, 26 + offset, line_slash, 10, 10, 0);
   // 时间 h:i:s
-  offset = 0;
   finishedAnimating = tetris.drawNumbers(2 + X_OFFSET, 10 + y_offset + offset, showColon);
   uint16_t colour =  showColon ? tetris.tetrisWHITE : tetris.tetrisBLACK;
   int y = 10 + y_offset - (TETRIS_Y_DROP_DEFAULT * tetris.scale);
