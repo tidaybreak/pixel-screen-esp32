@@ -673,7 +673,7 @@ void initOLED(int panel_chain, int light)
 {
 
   // esp32
-  //HUB75_I2S_CFG::i2s_pins _pins = {R1_PIN, G1_PIN, B1_PIN, R2_PIN, G2_PIN, B2_PIN, A_PIN, B_PIN, C_PIN, D_PIN, 32, LAT_PIN, OE_PIN, CLK_PIN};
+  HUB75_I2S_CFG::i2s_pins _pins = {R1_PIN, G1_PIN, B1_PIN, R2_PIN, G2_PIN, B2_PIN, A_PIN, B_PIN, C_PIN, D_PIN, 32, LAT_PIN, OE_PIN, CLK_PIN};
  
   // esp32 wrover kit
   //   ESP32管脚  JTAG信号
@@ -682,7 +682,7 @@ void initOLED(int panel_chain, int light)
   // 3 MTDO/GPIO15 TDO
   // 4 MTDI/GPIO12 TDI
   // 5 MTCK/GPIO13 TCK
-  HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, R2_PIN, 12, 13, A_PIN, B_PIN, C_PIN, 18, 2, LAT_PIN, OE_PIN, 22};
+  //HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, R2_PIN, 12, 13, A_PIN, B_PIN, C_PIN, 18, 2, LAT_PIN, OE_PIN, 22};
  
   // Module configuration
   HUB75_I2S_CFG mxconfig(

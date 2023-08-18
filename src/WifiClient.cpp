@@ -12,6 +12,7 @@ const char *AP_SSID = "Pixel"; // 设置AP热点名称
 String wifi_ssid = "";
 String wifi_pass = "";
 bool first_conn = true;
+int ap_timestamp = 0;
 
 #define TIME_ZONE_LEN 100
 char timeZone[TIME_ZONE_LEN] = MYTIMEZONE;
@@ -80,6 +81,7 @@ void smartConfig()
 // 初始化AP模式
 void initSoftAP()
 {
+  ap_timestamp = now();
   WiFi.mode(WIFI_AP);                                         // 配置为AP模式
   WiFi.softAPConfig(apIP, apIP, IPAddress(255, 255, 255, 0)); // 设置AP热点IP和子网掩码
   if (WiFi.softAP(AP_SSID))
@@ -237,6 +239,10 @@ int wifi_check() {
   if (WiFi.getMode() == WIFI_MODE_APSTA) {
     handleWiFiRequest();
     Serial.print(".");
+    // 超过一定时间不配置就重启，可能wifi恢复了
+    if (now() - ap_timestamp > 180) {
+      ESP.restart();
+    }
     // 在配网模式中
     return 1;
   }
