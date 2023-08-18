@@ -346,11 +346,6 @@ void element_clock_tetris_setup(JsonObject &node) {
 
   // Setup EZ Time
   //setDebug(INFO);
-  setServer("ntp.aliyun.com");
-  waitForSync(5000);
-
-  Serial.println();
-  Serial.println("UTC:             " + UTC.dateTime());
 
   myTZ.setLocation(F(MYTIMEZONE));
   Serial.print(F("Time in your set timezone:         "));

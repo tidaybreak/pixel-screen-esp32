@@ -399,7 +399,6 @@ String http_get(String &url) {
   http.begin(url.c_str());
   //发起http get请求
   int httpResponseCode = http.GET();
-  //Serial.println(String(conf.zx_key) + String("|") + String(conf.city) + String(url) + String(" get3DayWeather HTTP Response code:") + String(httpResponseCode));
 
   if (httpResponseCode == 200) {
     payload = http.getString();

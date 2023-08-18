@@ -130,8 +130,11 @@ void loop()
     delay(350);
     return;
   } else if (wifi_status == 3) {
-    get_system_info();
+    setServer("ntp.aliyun.com");
+    waitForSync(5000);
+    Serial.println("UTC:" + UTC.dateTime());
 
+    get_system_info();
     startServer();
   }
 
