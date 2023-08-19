@@ -25,7 +25,7 @@
 #include "element\countdown\countdown.h"
 #include <ESP32-HUB75-MatrixPanel-I2S-DMA.h>
 #include "OLEDDriver.h"
-#include "element/clock/tetris/TetrisMatrixDraw.h"
+#include "element/clock/default/TetrisMatrixDraw.h"
 #include <ezTime.h>
 
 

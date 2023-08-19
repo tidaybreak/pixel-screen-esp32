@@ -18,7 +18,7 @@
 //#include <ESP32Ping.h>
 //#include <ArduinoJson.h>
 
-#include "element/clock/tetris/tetris.h"
+#include "element/clock/default/default.h"
 #include "element/countdown/countdown.h"
 #include "element/command/command.h"
 
@@ -148,8 +148,8 @@ void loop()
     for (JsonObject node : nodesArray) {
       curr_idx = i;
       String element = node["element"].as<String>();
-      if (element == "clock_teris") {
-          element_clock_tetris_setup(node);
+      if (element == "clock_default") {
+          element_clock_default_setup(node);
           break;
       } else if (element == "countdown") {
           int secs = node["secs"].as<int>();
@@ -177,8 +177,8 @@ void loop()
   JsonObject curr_node = ((JsonObject)(nodesArray[curr_idx]));
 
   String element = curr_node["element"].as<String>();
-  if (element == "clock_teris") {
-    element_clock_tetris_loop();
+  if (element == "clock_default") {
+    element_clock_default_loop();
   } else if (element == "countdown") {
     if (element_countdown_loop()) {
       Serial.println("remove idx:" + String(curr_idx));

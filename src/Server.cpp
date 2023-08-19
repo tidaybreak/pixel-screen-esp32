@@ -79,7 +79,7 @@ const char *serverIndex =
     "});"
     "});"
     "$(document).ready(function() {"
-    "var configStr = '{\"action\":\"push/del/cover\",\"i1\":1,\"nodes\":[{\"element\":\"countdown\",\"secs\":11},{\"element\":\"command\",\"command\":\"command\",\"args\":\"1,-1,-1,FFFF00,1,FreeSans9pt7b\",\"delay\":10},{\"element\":\"clock_teris\",\"url\":\"http://192.168.2.80/clock\"}]}';"
+    "var configStr = '{\"action\":\"\",\"nodes\":[{\"element\":\"countdown\",\"secs\":18},{\"element\":\"command\",\"command\":\"command\",\"args\":\"1,-1,-1,FFFF00,1,FreeSans9pt7b\",\"delay\":10},{\"element\":\"clock_default\",\"url\":\"http://192.168.2.80/clock\"}]}';"
     "var jsonData = JSON.parse(configStr);"
     "var formattedData = JSON.stringify(jsonData, null, 2);"
     "$('#config').val(formattedData);"
@@ -146,18 +146,18 @@ void handleFileUpload() {
   if (upload.status == UPLOAD_FILE_START) {
     filename = upload.filename;
     if (!filename.startsWith("/")) filename = "/" + filename;
-    Serial.print("handleFileUpload Name: "); Serial.println(filename);
+    Serial.print("handleFileUploadx Name: "); Serial.println(filename);
     SPIFFS.remove(filename);
     fsUploadFile = SPIFFS.open(filename, "w");
     filename = String();
   } else if (upload.status == UPLOAD_FILE_WRITE) {
-    //Serial.print("handleFileUpload Data: "); Serial.println(upload.currentSize);
+    Serial.print("handleFileUploadx Data: "); Serial.println(upload.currentSize);
     if (fsUploadFile)
       fsUploadFile.write(upload.buf, upload.currentSize);
   } else if (upload.status == UPLOAD_FILE_END) {
     if (fsUploadFile)
       fsUploadFile.close();
-    Serial.print("handleFileUpload Size: "); Serial.println(upload.totalSize);
+    Serial.print("handleFileUploadx Size: "); Serial.println(upload.totalSize);
     drawBmp(filename.c_str(), 0, 0);
   }
 }
@@ -294,13 +294,13 @@ void startServer()
             {
     server.sendHeader("Connection", "close");
     server.send(200, "text/html", serverIndex); });
-  server.on(
-      "/upload", HTTP_POST, []()
-      { uploadFinish(); },
-      handleFileUpload);
+  // server.on(
+  //     "/upload", HTTP_POST, []()
+  //     { uploadFinish(); },
+  //     handleFileUpload);
   /*handling uploading firmware file */
   server.on(
-      "/update", HTTP_POST, []()
+      "/upload", HTTP_POST, []()
       {
     server.sendHeader("Connection", "close");
     server.send(200, "text/plain", (Update.hasError()) ? "FAIL" : "OK");

@@ -22,7 +22,7 @@
     Twitter: https://twitter.com/witnessmenow
  *******************************************************************/
 
-#include "element\clock\tetris\tetris.h"
+#include "element\clock\default\default.h"
 
 // ----------------------------
 // Standard Libraries - Already Installed if you have ESP32 set up
@@ -42,7 +42,7 @@
 // Can be installed from the library manager (Search for "ESP32 MATRIX DMA")
 // https://github.com/mrfaptastic/ESP32-HUB75-MatrixPanel-I2S-DMA
 
-#include "element/clock/tetris/TetrisMatrixDraw.h"
+#include "element/clock/default/TetrisMatrixDraw.h"
 // This library draws out characters using a tetris block
 // amimation
 // Can be installed from the library manager
@@ -304,7 +304,7 @@ void setMatrixTime() {
 }
 
 static bool isinit = false;
-void element_clock_tetris_setup(JsonObject &node) {
+void element_clock_default_setup(JsonObject &node) {
   Serial.println("clock init!");
 
   info_url = node["url"].as<String>();
@@ -374,7 +374,7 @@ void element_clock_tetris_setup(JsonObject &node) {
   //tetris.setTime("00:00", true);
 }
 
-void element_clock_tetris_loop() {
+void element_clock_default_loop() {
 
   if (dma_display == nullptr) {
     return ;
